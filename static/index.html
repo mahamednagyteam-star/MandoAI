@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131d">
+  <meta name="description" content="MandoAI — واجهة محادثة عربية لاختيار نماذج GLM.">
+  <title>MandoAI</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d1018;--panel:#151a27;--panel2:#1c2332;--line:#293247;--text:#edf1fa;--muted:#9ca8bd;--accent:#8b7cff;--accent2:#5dd6c0;--danger:#ff8d98}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -10%,#252044 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    .shell{max-width:1100px;margin:auto;padding:24px 18px;display:flex;flex-direction:column;min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#4a9fe8);display:grid;place-items:center;font-weight:900;font-size:19px;box-shadow:0 8px 30px #7566ff44}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.status{font-size:12px;color:var(--accent2);border:1px solid #285b58;padding:7px 11px;border-radius:30px}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px;flex:1;min-height:0}.side,.chat{background:#121724d9;border:1px solid var(--line);border-radius:20px}.side{padding:18px;height:max-content}.side h2{font-size:14px;margin:0 0 12px}.side label{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}.side select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:12px;border-radius:12px;font:inherit;outline:none}.note{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 0}.side button{width:100%;margin-top:16px;border:1px solid var(--line);background:transparent;color:var(--text);padding:10px;border-radius:11px;cursor:pointer}
+    .chat{display:flex;flex-direction:column;min-height:600px;overflow:hidden}.chathead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.chathead strong{font-size:14px}.chathead span{font-size:12px;color:var(--muted)}.messages{padding:22px;flex:1;overflow:auto;display:flex;flex-direction:column;gap:15px;max-height:calc(100vh - 280px);min-height:380px}.welcome{text-align:center;margin:auto;max-width:470px;color:var(--muted);line-height:1.9}.welcome .orb{width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,#8b7cff33,#5dd6c033);border:1px solid #514b87;margin:0 auto 14px;display:grid;place-items:center;color:#c7c0ff;font-size:25px}.welcome h2{color:var(--text);font-size:20px;margin:0 0 7px}.bubble{max-width:min(82%,760px);padding:13px 16px;border:1px solid var(--line);border-radius:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.user{align-self:flex-start;background:#282445;border-color:#494174}.bubble.assistant{align-self:flex-end;background:var(--panel)}.bubble.error{border-color:#75404a;color:#ffc1c6}.composer{padding:15px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-end}.composer textarea{flex:1;resize:vertical;min-height:48px;max-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;color:var(--text);padding:13px;font:inherit;outline:none}.composer textarea:focus,.side select:focus{border-color:var(--accent)}.send{height:48px;min-width:92px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--accent),#5d9df2);color:white;font:inherit;font-weight:700;cursor:pointer}.send:disabled{opacity:.55;cursor:wait}.foot{font-size:11px;color:#77839a;text-align:center;padding-top:12px}
+    @media(max-width:760px){.shell{padding:14px 10px}.layout{grid-template-columns:1fr}.chat{min-height:520px}.messages{max-height:none;min-height:320px}.top{margin-bottom:14px}.bubble{max-width:94%}.status{display:none}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand"><div class="logo">M</div><div><h1>MandoAI</h1><p>واجهة محادثة نماذج GLM</p></div></div><div class="status">● الواجهة جاهزة</div></header>
+  <main class="layout">
+    <aside class="side">
+      <h2>إعدادات المحادثة</h2>
+      <label for="model">اختر النموذج</label>
+      <select id="model">
+        <optgroup label="نماذج النص">
+          <option>glm-5.3</option><option>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option>
+        </optgroup>
+        <optgroup label="الصور"><option value="glm-image">glm-image — غير متاح حاليًا</option></optgroup>
+      </select>
+      <p class="note">يتم حفظ اختيار النموذج وسجل المحادثة على هذا المتصفح فقط. قد تختلف النماذج المتاحة حسب الخدمة الخارجية.</p>
+      <button id="clear" type="button">مسح المحادثة</button>
+    </aside>
+    <section class="chat">
+      <div class="chathead"><strong>المحادثة</strong><span id="modelLabel">glm-5.3</span></div>
+      <div class="messages" id="messages"><div class="welcome" id="welcome"><div class="orb">✦</div><h2>أهلًا بك في MandoAI</h2><div>اختر نموذج GLM وابدأ محادثة جديدة. يمكنك الكتابة بالعربية أو بأي لغة أخرى.</div></div></div>
+      <form class="composer" id="form"><textarea id="prompt" maxlength="8000" rows="1" placeholder="اكتب رسالتك هنا..." aria-label="رسالتك" required></textarea><button class="send" id="send" type="submit">إرسال ↑</button></form>
+    </section>
+  </main>
+  <footer class="foot">MandoAI · يتصل بالخدمة الخارجية عبر الخادم، ولا يضع بيانات الاتصال في المتصفح.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);const model=$('model'),messagesEl=$('messages'),promptEl=$('prompt'),sendBtn=$('send');
+let history=[];try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]')}catch{history=[]}
+model.value=localStorage.getItem('mandoai-model')||'glm-5.3';$('modelLabel').textContent=model.value;
+function save(){localStorage.setItem('mandoai-history',JSON.stringify(history));localStorage.setItem('mandoai-model',model.value)}
+function bubble(role,text,extra=''){const el=document.createElement('div');el.className=`bubble ${role} ${extra}`;el.textContent=text;messagesEl.appendChild(el);messagesEl.scrollTop=messagesEl.scrollHeight;return el}
+function render(){messagesEl.innerHTML='';if(!history.length){messagesEl.innerHTML='<div class="welcome"><div class="orb">✦</div><h2>أهلًا بك في MandoAI</h2><div>اختر نموذج GLM وابدأ محادثة جديدة. يمكنك الكتابة بالعربية أو بأي لغة أخرى.</div></div>';return}for(const m of history)bubble(m.role,m.content)}
+render();model.addEventListener('change',()=>{$('modelLabel').textContent=model.value;save()});$('clear').onclick=()=>{history=[];save();render()};
+promptEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('form').requestSubmit()}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;const selected=model.value;if(selected==='glm-image'){bubble('error','نموذج glm-image ظاهر في القائمة، لكن كود تشغيل الصور في السكربت الأصلي معطّل ولم يتم التحقق من واجهته.');return}
+  history.push({role:'user',content:text});bubble('user',text);promptEl.value='';save();sendBtn.disabled=true;sendBtn.textContent='...';const reply=bubble('assistant','');let answer='';
+  try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:selected,messages:history})});if(!res.ok){let msg='تعذر تنفيذ الطلب.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
+    if(!res.body)throw new Error('المتصفح لم يستطع قراءة البث المباشر.');const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
+    while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let parts=buffer.split('\n\n');buffer=parts.pop();for(const part of parts){for(const line of part.split('\n')){if(!line.startsWith('data:'))continue;let obj;try{obj=JSON.parse(line.slice(5).trim())}catch{continue}if(obj.type==='delta'){answer+=obj.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}else if(obj.type==='error'||obj.type==='limit'||obj.type==='offline'){throw new Error(obj.message||'الخدمة غير متاحة حالياً.')}else if(obj.type==='notice'){if(obj.message)answer+='\n'+obj.message;reply.textContent=answer}else if(obj.type==='meta'&&obj.fallback){/* model fallback metadata */}}}}
+    if(!answer.trim())answer='لم يصل نص من الخدمة. قد يكون النموذج غير متاح حاليًا.';history.push({role:'assistant',content:answer});save();
+  }catch(err){reply.classList.add('error');reply.textContent=err.message||'حدث خطأ غير متوقع.';history.push({role:'assistant',content:reply.textContent});save()}
+  finally{sendBtn.disabled=false;sendBtn.textContent='إرسال ↑';promptEl.focus()}
+});
+</script>
+</body>
+</html>
