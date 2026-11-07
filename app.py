@@ -86,7 +86,7 @@ async def _provider_stream(model_id: str, messages: list[dict]) -> AsyncIterator
     elif cfg["kind"] == "anthropic":
         url = base + "/v1/messages"
         headers = {"x-api-key": api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json", "Accept": "text/event-stream"}
-        system_text = "\\n".join(m["content"] for m in messages if m["role"] == "system")
+        system_text = "\n".join(m["content"] for m in messages if m["role"] == "system")
         chat_messages = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in {"user", "assistant"}]
         payload = {"model": model_name, "max_tokens": 4096, "stream": True, "messages": chat_messages}
         if system_text:
@@ -287,7 +287,7 @@ async def _ask_agent(client: httpx.AsyncClient, model: str, system: str, prompt:
     async with client.stream(
         "POST", "/wp-json/glm-chat/v1/message",
         json={"model": model, "messages": [
-            {"role": "user", "content": "تعليمات دور الوكيل:\\n" + system + "\\n\\nالمهمة والبيانات:\\n" + prompt}
+            {"role": "user", "content": "تعليمات دور الوكيل:\n" + system + "\n\nالمهمة والبيانات:\n" + prompt}
         ]}, headers=headers,
     ) as response:
         if response.status_code != 200:
