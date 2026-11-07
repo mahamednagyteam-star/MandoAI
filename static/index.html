@@ -309,6 +309,17 @@ const MODELS=[
  {id:'gpt-5.4-mini',label:'GPT-5.4 Mini',provider:'AppZone AI',enabled:false},
  {id:'qwen-3.7-plus',label:'Qwen 3.7 Plus',provider:'AppZone AI',enabled:false},
 ];
+async function refreshModelAvailability(){
+ try{
+  const response=await fetch('/api/models',{headers:{'Accept':'application/json'}});
+  if(!response.ok)return;
+  const data=await response.json();
+  const states=new Map((data.models||[]).map(item=>[item.id,!!item.enabled]));
+  MODELS.forEach(item=>{if(item.provider) item.enabled=states.get(item.id)===true;});
+  if(!MODELS.some(item=>item.id===model&&item.enabled!==false))model='glm-5.3-flash';
+  syncModelUI();save();
+ }catch{}
+}
 const SUGGESTIONS=['اشرح لي موضوعًا معقدًا ببساطة','اكتب لي دالة بايثون مع شرح','لخّص لي نصًا طويلًا','أعطني خطة عمل لمشروع صغير'];
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -624,7 +635,7 @@ $('form').addEventListener('submit',async e=>{
 
 /* ================= Init ================= */
 if(!MODELS.some(m=>m.id===model&&m.enabled!==false))model='glm-5.3-flash';
-syncModelUI();renderSidebar();renderMessages();
+syncModelUI();renderSidebar();renderMessages();refreshModelAvailability();
 </script>
 </body>
 </html>
