@@ -29,6 +29,37 @@ button,textarea,select{font:inherit}button{cursor:pointer}
 .input-bottom{display:flex;align-items:center;gap:15px;padding:3px 7px 0;color:#918b9e;font-size:11px}.thinking-select{border:0;background:transparent;color:#74688e;font-size:11px;outline:0}.disclaimer{text-align:center;color:#a19bab;font-size:10px;padding:8px 0 0}
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:30;background:#30294d;color:#fff;border-radius:25px;padding:10px 16px;font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
 @keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{opacity:.35}}
+
+/* 3D depth layer */
+:root{--shadow:0 22px 55px #49347720}
+body{perspective:1400px;background:radial-gradient(ellipse at 50% 8%,#e8defd 0,transparent 34%),radial-gradient(ellipse at 90% 88%,#e1f4f5 0,transparent 30%),linear-gradient(145deg,#fbfaff,#f1edfa 65%,#f7faff)}
+.header{box-shadow:0 7px 24px #4b397b0b;transform:translateZ(18px)}
+.brand-mark{position:relative;transform:rotate(-9deg) translateZ(20px);box-shadow:7px 9px 0 #6d55b522,0 14px 25px #9976d766;transition:transform .35s}
+.brand-mark:hover{transform:rotate(0) translateY(-4px) translateZ(30px)}
+.main{transform-style:preserve-3d}
+.welcome-logo{transform:rotateX(12deg) rotateY(-12deg) translateZ(24px);box-shadow:10px 13px 0 #8060dc20,0 22px 35px #9a7be755,inset 3px 3px 8px #ffffff88;transition:transform .4s}
+.welcome-logo:hover{transform:rotateX(0) rotateY(0) translateY(-5px) translateZ(35px)}
+.composer-dock{transform:translateX(-50%) translateZ(35px);box-shadow:0 20px 0 #7860ba12,0 30px 65px #4d3c7830,inset 0 2px 0 #ffffff}
+.model-select-wrap,.tool-btn,.input-plus,.send-btn{box-shadow:0 3px 0 #62518c14,0 7px 14px #4e3b7610;transition:transform .22s,box-shadow .22s,filter .22s}
+.model-select-wrap:hover,.tool-btn:hover,.input-plus:hover{transform:translateY(-3px);box-shadow:0 6px 0 #62518c12,0 12px 20px #4e3b7618}
+.send-btn{box-shadow:0 5px 0 #5b43a9,0 12px 22px #8668d955,inset 0 2px 2px #ffffff66}
+.send-btn:hover{transform:translateY(-4px);box-shadow:0 8px 0 #5b43a9,0 18px 25px #8668d966}
+.pill-btn,.mode-btn{box-shadow:0 3px 0 #6b57951a,0 6px 12px #4e3b7609}
+.mode-btn.active{box-shadow:0 4px 0 #5b48ad,0 8px 16px #8b70db55,inset 0 1px 2px #ffffff66}
+.bubble{box-shadow:0 8px 0 #4634770a,0 15px 28px #4634770c;transform:translateZ(8px)}
+.bubble.user{box-shadow:0 6px 0 #1d1935,0 14px 25px #342d5930,inset 0 1px 1px #ffffff25}
+.bubble.assistant{box-shadow:0 5px 0 #e7e2ef,0 12px 25px #46347710,inset 0 1px 0 #fff}
+.avatar{box-shadow:0 5px 0 #7155b8,0 10px 17px #9a7bd744,inset 0 2px 2px #ffffff77}
+.message.user .avatar{box-shadow:0 4px 0 #ded7ec,0 8px 13px #4e3b7614}
+.thinking-badge{box-shadow:0 4px 0 #dfd5f3,0 8px 15px #8060dc18,inset 0 1px 1px #fff}
+.welcome h1{text-shadow:0 3px 0 #8060dc10}
+@media(prefers-reduced-motion:no-preference){
+ .welcome-logo{animation:float3d 5s ease-in-out infinite}
+ .brand-mark{animation:brandFloat 6s ease-in-out infinite}
+}
+@keyframes float3d{0%,100%{transform:rotateX(12deg) rotateY(-12deg) translateY(0) translateZ(24px)}50%{transform:rotateX(5deg) rotateY(9deg) translateY(-8px) translateZ(32px)}}
+@keyframes brandFloat{0%,100%{transform:rotate(-9deg) translateY(0) translateZ(20px)}50%{transform:rotate(-4deg) translateY(-3px) translateZ(26px)}}
+
 @media(min-width:900px){.main{padding-top:38px}.chat-area{padding-bottom:255px}.composer-dock{bottom:28px}}
 @media(max-width:650px){.header{height:62px;padding:0 13px;gap:10px}.brand{min-width:0;gap:8px}.brand-mark{width:35px;height:35px;border-radius:12px}.brand-name{font-size:17px}.brand-name small{font-size:9px}.header-actions{gap:5px}.header-actions>.pill-btn{display:none}.mode-group{padding:2px}.mode-btn{padding:7px 10px;font-size:10px}.main{padding:18px 13px 12px;min-height:calc(100vh - 62px)}.chat-area{padding-bottom:255px}.messages{gap:17px}.welcome{padding:24px 8px}.welcome-logo{width:58px;height:58px;border-radius:20px;font-size:25px}.welcome h1{font-size:23px}.welcome p{font-size:12px}.message{max-width:94%;gap:7px}.avatar{width:30px;height:30px;flex-basis:30px}.bubble{padding:11px 13px;font-size:12px;border-radius:17px}.composer-dock{bottom:calc(12px + env(safe-area-inset-bottom));width:calc(100% - 24px);padding:10px 10px 9px;border-radius:21px}.model-line{margin-bottom:7px}.model-select-wrap{padding:6px 10px}.model-select-wrap select{font-size:11px;max-width:185px}.tools-row{gap:3px;padding-bottom:7px}.tool-btn{padding:7px 8px;font-size:10px;gap:5px}.tool-btn .tool-icon{font-size:14px}.input-row{gap:6px;padding-top:6px}.input-plus{width:34px;height:34px;flex-basis:34px}.input-row textarea{font-size:13px;min-height:39px;padding:8px 5px}.send-btn{width:41px;height:41px;flex-basis:41px}.input-bottom{font-size:10px;gap:9px}.disclaimer{font-size:9px}.thinking{font-size:10px;gap:7px}.thinking-badge{padding:6px 10px}}
 @media(max-width:370px){.mode-btn{padding:6px 8px}.brand-name small{display:none}.tool-btn{padding:7px 6px}.tool-btn .tool-text{display:none}.model-select-wrap select{max-width:145px}}
