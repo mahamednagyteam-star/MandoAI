@@ -1,98 +1,116 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090b12">
-  <meta name="description" content="MandoAI — مساحة ذكاء اصطناعي عربية للمحادثة والإنتاجية.">
-  <title>MandoAI — مساحة الذكاء الاصطناعي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{color-scheme:dark;--bg:#090b12;--surface:#111521;--surface2:#171d2b;--surface3:#20283a;--line:#293247;--text:#f2f4fb;--muted:#98a3b8;--purple:#9b8cff;--cyan:#65dfd0;--danger:#ff8998;--shadow:0 24px 80px #0008}
-    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text)}
-    body{min-height:100vh;background:radial-gradient(ellipse at 82% -15%,#41357955,transparent 36%),radial-gradient(ellipse at 4% 90%,#176e7650,transparent 30%),var(--bg)}
-    button,select,textarea{font:inherit}button{cursor:pointer}
-    .app{max-width:1500px;min-height:100vh;margin:auto;padding:18px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px}
-    .sidebar{background:#101521e8;border:1px solid #ffffff12;border-radius:25px;padding:22px;display:flex;flex-direction:column;gap:25px;box-shadow:var(--shadow);backdrop-filter:blur(18px)}
-    .brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;font-size:22px;font-weight:700;background:linear-gradient(145deg,#b3a5ff,#6860dc 55%,#4cc9c0);box-shadow:0 9px 28px #8274ff55;color:white}.brand-name{font-size:20px;font-weight:700;letter-spacing:-.5px}.brand-caption{font-size:11px;color:var(--muted);margin-top:2px}
-    .new-chat{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:1px solid #a99cff55;border-radius:14px;padding:13px;color:white;background:linear-gradient(110deg,#7868d9,#655bc2);box-shadow:0 8px 22px #7668d933;font-weight:600;transition:.2s}.new-chat:hover{filter:brightness(1.12);transform:translateY(-1px)}
-    .section-label{font-size:11px;color:#77839a;font-weight:700;letter-spacing:.7px;margin:0 0 11px}.setting-card{padding:15px;border:1px solid var(--line);background:linear-gradient(145deg,#1a2030,#121825);border-radius:17px}.setting-card label{display:block;font-size:12px;color:var(--muted);margin-bottom:10px}.select-wrap{position:relative}.select-wrap:after{content:"⌄";position:absolute;left:13px;top:8px;color:#a9a2ff;pointer-events:none}.setting-card select{width:100%;appearance:none;background:#0c111c;border:1px solid #30394e;border-radius:11px;padding:11px 12px;color:var(--text);outline:none;font-size:13px}.setting-card select:focus,.composer textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b8cff20}
-    .model-hint{font-size:11px;color:#8591a7;line-height:1.7;margin:10px 0 0}.side-info{margin-top:auto;border:1px solid #ffffff12;background:#ffffff05;border-radius:16px;padding:14px}.side-info strong{font-size:12px;display:block;margin-bottom:5px}.side-info p{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.side-bottom{display:flex;align-items:center;justify-content:space-between;color:#7e8aa1;font-size:11px;padding:0 3px}
-    .main{min-width:0;display:flex;flex-direction:column;gap:16px}.topbar{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border:1px solid #ffffff12;border-radius:20px;background:#111521bd;backdrop-filter:blur(16px)}.page-title{font-weight:600;font-size:15px}.page-subtitle{font-size:11px;color:var(--muted);margin-top:2px}.top-actions{display:flex;align-items:center;gap:10px}.status{display:flex;align-items:center;gap:8px;border:1px solid #3c8d7b55;background:#173a354d;padding:8px 12px;border-radius:30px;color:#8ce5cd;font-size:11px}.dot{width:7px;height:7px;background:#5cdbb6;border-radius:50%;box-shadow:0 0 12px #5cdbb6}
-    .clear-btn{border:1px solid var(--line);background:#ffffff06;color:#aab4c7;border-radius:11px;padding:8px 12px;font-size:11px;transition:.2s}.clear-btn:hover{background:#ffffff12;color:white}
-    .chat-panel{flex:1;min-height:calc(100vh - 122px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #ffffff14;border-radius:25px;background:linear-gradient(155deg,#121725f2,#0e131ef2);box-shadow:var(--shadow);position:relative}.chat-panel:before{content:"";position:absolute;inset:0 20% auto;height:1px;background:linear-gradient(90deg,transparent,#a99cff99,transparent)}
-    .chat-meta{padding:17px 24px;border-bottom:1px solid #ffffff0c;display:flex;align-items:center;justify-content:space-between}.chat-meta strong{font-size:13px}.model-chip{font-size:10px;color:#c2baff;background:#8e80ff18;border:1px solid #a99cff35;border-radius:30px;padding:6px 11px;direction:ltr}
-    .messages{width:100%;max-width:930px;margin:0 auto;padding:30px 28px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:19px;min-height:350px;max-height:calc(100vh - 265px);scrollbar-width:thin;scrollbar-color:#424b63 transparent}
-    .welcome{margin:auto;text-align:center;max-width:570px;padding:30px 10px}.welcome-icon{width:76px;height:76px;margin:0 auto 20px;border-radius:25px;display:grid;place-items:center;font-size:32px;color:#d5ceff;background:linear-gradient(145deg,#9b8cff30,#5dd6c020);border:1px solid #b5a9ff3d;box-shadow:0 0 60px #8c7aff18}.welcome h1{font-size:clamp(23px,3vw,32px);margin:0 0 10px;letter-spacing:-.7px}.welcome h1 span{background:linear-gradient(90deg,#c0b6ff,#75e4d2);background-clip:text;-webkit-background-clip:text;color:transparent}.welcome>p{color:var(--muted);font-size:13px;line-height:2;margin:0 auto 27px;max-width:460px}
-    .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;text-align:right}.suggestion{border:1px solid #ffffff13;border-radius:15px;background:#ffffff06;color:#dce2f0;padding:14px;text-align:right;transition:.2s}.suggestion:hover{border-color:#9b8cff77;background:#8d7cff12;transform:translateY(-2px)}.suggestion b{display:block;font-size:12px;margin-bottom:5px}.suggestion span{display:block;color:#8995aa;font-size:11px;line-height:1.6}
-    .message-row{display:flex;align-items:flex-start;gap:11px;max-width:88%;animation:rise .2s ease}.message-row.user{align-self:flex-start;flex-direction:row-reverse}.message-row.assistant{align-self:flex-end}.avatar{flex:0 0 34px;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;font-size:12px;font-weight:700;background:linear-gradient(145deg,#8172e5,#4a9caa);color:white}.user .avatar{background:#27334a;color:#c8d2e7}.bubble{min-width:0;padding:13px 16px;border:1px solid #ffffff12;border-radius:17px;line-height:1.95;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.user{background:linear-gradient(140deg,#292744,#20263a);border-color:#7770b844;border-top-left-radius:5px}.bubble.assistant{background:#171e2c;border-top-right-radius:5px}.bubble.error{border-color:#a34d5b;color:#ffc1c8}
-    .composer-area{padding:17px 24px 20px;border-top:1px solid #ffffff0d;background:#0d121d99}.composer{max-width:930px;margin:auto;display:flex;align-items:flex-end;gap:11px;padding:9px;background:#171e2c;border:1px solid #343e55;border-radius:19px;box-shadow:0 8px 30px #0003;transition:.2s}.composer:focus-within{border-color:#9284ff88;box-shadow:0 0 0 3px #9284ff12,0 8px 30px #0003}.composer textarea{flex:1;min-width:0;resize:none;min-height:44px;max-height:160px;background:transparent;border:0;color:var(--text);padding:10px 12px;outline:none;font-size:13px;line-height:1.7}.composer textarea:focus{box-shadow:none;border:0}.composer textarea::placeholder{color:#7e8aa0}.send{width:45px;height:45px;flex:0 0 45px;border:0;border-radius:13px;color:white;font-size:19px;background:linear-gradient(145deg,#a092ff,#6960d4);box-shadow:0 5px 16px #8475ff40;transition:.2s}.send:hover{filter:brightness(1.12);transform:translateY(-1px)}.send:disabled{opacity:.5;cursor:wait;transform:none}.composer-note{text-align:center;color:#748097;font-size:10px;margin:10px 0 0}.footer{color:#667188;text-align:center;font-size:10px;padding:0 0 2px}
-    @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-    @media(max-width:900px){.app{grid-template-columns:245px minmax(0,1fr);padding:12px;gap:12px}.sidebar{padding:17px}.messages{padding:24px 18px}}
-    @media(max-width:680px){.app{display:flex;flex-direction:column;padding:9px;gap:10px}.sidebar{padding:13px 14px;gap:12px;border-radius:19px}.brand{gap:9px}.logo{width:39px;height:39px;border-radius:13px;font-size:18px}.brand-name{font-size:17px}.brand-caption{font-size:10px}.new-chat{width:auto;padding:9px 12px;font-size:11px}.sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.section-label{margin-bottom:7px}.setting-card{padding:11px;display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:10px}.setting-card label{margin:0}.setting-card select{padding:9px}.model-hint,.side-info,.side-bottom{display:none}.main{flex:1;min-height:65vh}.topbar{height:54px;padding:0 13px;border-radius:15px}.page-title{font-size:13px}.page-subtitle{font-size:10px}.status{padding:6px 9px;font-size:10px}.clear-btn{padding:6px 9px}.chat-panel{min-height:calc(100vh - 190px);border-radius:19px}.chat-meta{padding:12px 15px}.messages{padding:17px 12px;min-height:300px;max-height:none}.welcome{padding:20px 4px}.welcome-icon{width:62px;height:62px;border-radius:20px;font-size:27px;margin-bottom:15px}.welcome>p{font-size:12px}.suggestions{gap:8px}.suggestion{padding:11px;border-radius:12px}.suggestion b{font-size:11px}.suggestion span{font-size:10px}.message-row{max-width:96%;gap:7px}.avatar{width:29px;height:29px;flex-basis:29px;border-radius:10px}.bubble{padding:10px 12px;font-size:12px}.composer-area{padding:11px 10px 13px}.composer{padding:6px;border-radius:15px}.composer textarea{font-size:12px;padding:8px}.send{width:40px;height:40px;flex-basis:40px}.footer{font-size:9px}}
-    @media(max-width:370px){.suggestions{grid-template-columns:1fr}.status{display:none}.setting-card{grid-template-columns:85px minmax(0,1fr)}}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f6fc"><meta name="description" content="MandoAI — مساعدك الذكي">
+<title>MandoAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8f7fc;--paper:#fff;--ink:#29263a;--muted:#89869a;--line:#e9e6f1;--purple:#8060dc;--lav:#eee9fb;--shadow:0 12px 38px #46347712}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{min-height:100vh;background:radial-gradient(ellipse at 50% 105%,#eeeaff 0,transparent 44%),linear-gradient(180deg,#fbfaff,#f7f6fc 68%,#f2effb)}
+button,textarea,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column;max-width:1500px;margin:auto}
+.header{height:76px;padding:0 25px;display:flex;align-items:center;gap:20px;background:#ffffffd9;border-bottom:1px solid #e9e6f1;backdrop-filter:blur(18px);position:sticky;top:0;z-index:10}
+.icon-btn{width:39px;height:39px;border:0;background:transparent;border-radius:12px;color:#5c5870;font-size:22px;display:grid;place-items:center}.icon-btn:hover{background:#f1eef9}
+.brand{display:flex;align-items:center;gap:10px;min-width:185px}.brand-mark{width:39px;height:39px;border-radius:13px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:21px;background:linear-gradient(145deg,#c68de9,#8060dc 58%,#6c69d9);box-shadow:0 5px 15px #9976d744}.brand-name{font-size:19px;font-weight:700;letter-spacing:-.5px}.brand-name small{font-size:11px;color:#8d78c7;font-weight:600;margin-right:4px}
+.header-actions{display:flex;align-items:center;gap:8px;margin-right:auto}.pill-btn{height:39px;border:1px solid #e6e1f1;background:#fff;color:#5f5872;border-radius:24px;padding:0 15px;display:flex;align-items:center;gap:7px;font-size:12px;white-space:nowrap;transition:.2s}.pill-btn:hover{border-color:#c9b9ed;background:#faf8ff}.pill-btn.primary{background:#eee8fb;border-color:#e6dcfa;color:#7556c8}.mode-group{display:flex;align-items:center;gap:3px;padding:3px;background:#f5f3fa;border-radius:24px}.mode-btn{border:0;background:transparent;border-radius:20px;padding:8px 14px;color:#777186;font-size:12px}.mode-btn.active{color:#fff;background:linear-gradient(130deg,#9c80e7,#725bd1);box-shadow:0 3px 10px #8b70db44}
+.main{width:100%;max-width:1060px;margin:0 auto;flex:1;display:flex;flex-direction:column;padding:28px 25px 16px;min-height:calc(100vh - 76px)}
+.chat-area{flex:1;display:flex;flex-direction:column;min-height:380px;padding-bottom:260px}
+.messages{width:100%;display:flex;flex-direction:column;gap:20px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d6cfe8 transparent}
+.welcome{margin:auto;text-align:center;max-width:560px;padding:30px 12px}.welcome-logo{width:67px;height:67px;border-radius:23px;margin:0 auto 17px;display:grid;place-items:center;color:white;font-size:29px;background:linear-gradient(145deg,#c58eea,#8060dc 60%,#6f8fe3);box-shadow:0 10px 26px #9a7be744}.welcome h1{font-size:27px;margin:0 0 8px}.welcome h1 span{color:#8567d4}.welcome p{font-size:13px;color:#918da0;line-height:1.9;margin:0}
+.message{display:flex;align-items:flex-start;gap:10px;max-width:87%;animation:appear .2s ease}.message.user{align-self:flex-start;flex-direction:row-reverse}.message.assistant{align-self:flex-end}.avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#c48be6,#8060dc);font-size:13px;font-weight:700;box-shadow:0 3px 9px #9a7bd733}.message.user .avatar{background:#ece8f5;color:#776a96;box-shadow:none}.bubble{padding:14px 17px;border:1px solid #e9e5f0;border-radius:20px;line-height:1.95;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 4px 15px #46347708}.bubble.user{background:linear-gradient(145deg,#342d59,#26213f);border-color:#342d59;color:#fff;border-top-left-radius:6px}.bubble.assistant{background:#fff;color:#383448;border-top-right-radius:6px}.bubble.error{background:#fff7f8;border-color:#f1c8d0;color:#a33f55}
+.thinking{align-self:flex-end;display:flex;align-items:center;gap:11px;color:#777286;font-size:12px;padding:5px 4px}.thinking-badge{display:flex;align-items:center;gap:7px;background:#f0eafb;color:#8060bd;border:1px solid #e4d9f8;padding:8px 13px;border-radius:25px;font-weight:600}.thinking-dots{letter-spacing:2px;font-size:17px;animation:pulse 1.2s infinite}.thinking-time{color:#a5a0b0;font-size:11px}
+.composer-dock{position:fixed;z-index:5;bottom:25px;left:50%;transform:translateX(-50%);width:min(940px,calc(100% - 48px));padding:13px 14px 11px;border:1px solid #e5e1ed;border-radius:25px;background:#ffffffed;box-shadow:0 12px 40px #4d3c7817;backdrop-filter:blur(18px)}
+.model-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.model-select-wrap{display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid #e8e3f0;border-radius:25px;background:#fbfaff;max-width:100%}.online-dot{width:8px;height:8px;border-radius:50%;background:#51c18a;box-shadow:0 0 0 3px #51c18a20}.model-select-wrap select{border:0;outline:0;background:transparent;color:#48435a;font-weight:600;font-size:12px;max-width:215px;direction:ltr}.model-select-wrap select option{direction:ltr}
+.tools-row{display:flex;align-items:center;gap:7px;padding:2px 2px 10px;border-bottom:1px solid #efedf3;overflow-x:auto;scrollbar-width:none}.tools-row::-webkit-scrollbar{display:none}.tool-btn{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid transparent;border-radius:12px;background:transparent;color:#777186;font-size:11px;white-space:nowrap}.tool-btn:hover{background:#f7f4fc;border-color:#ebe5f6}.tool-btn .tool-icon{font-size:16px;color:#5d5870}.tool-btn.record{background:#f5efff;border-color:#e8ddfa;color:#795ac4}.tool-btn.stop{border:1px solid #e9e4f0;background:#fbfaff;color:#686176;margin-right:auto}
+.input-row{display:flex;align-items:flex-end;gap:10px;padding:8px 4px 0}.input-plus{width:38px;height:38px;flex:0 0 38px;border:0;border-radius:50%;background:#f5f2fa;color:#7962ba;font-size:24px}.input-row textarea{flex:1;min-width:0;resize:none;max-height:130px;min-height:43px;border:0;outline:0;background:transparent;color:#363247;padding:10px 7px;font-size:14px;line-height:1.6}.input-row textarea::placeholder{color:#aaa5b5}.send-btn{width:45px;height:45px;flex:0 0 45px;border:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#9b79e6,#7557d0);color:white;font-size:20px;box-shadow:0 5px 13px #8668d944;transition:.2s}.send-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}.send-btn:disabled{opacity:.5;cursor:wait;transform:none}
+.input-bottom{display:flex;align-items:center;gap:15px;padding:3px 7px 0;color:#918b9e;font-size:11px}.thinking-select{border:0;background:transparent;color:#74688e;font-size:11px;outline:0}.disclaimer{text-align:center;color:#a19bab;font-size:10px;padding:8px 0 0}
+.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:30;background:#30294d;color:#fff;border-radius:25px;padding:10px 16px;font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{opacity:.35}}
+@media(min-width:900px){.main{padding-top:38px}.chat-area{padding-bottom:255px}.composer-dock{bottom:28px}}
+@media(max-width:650px){.header{height:62px;padding:0 13px;gap:10px}.brand{min-width:0;gap:8px}.brand-mark{width:35px;height:35px;border-radius:12px}.brand-name{font-size:17px}.brand-name small{font-size:9px}.header-actions{gap:5px}.header-actions>.pill-btn{display:none}.mode-group{padding:2px}.mode-btn{padding:7px 10px;font-size:10px}.main{padding:18px 13px 12px;min-height:calc(100vh - 62px)}.chat-area{padding-bottom:255px}.messages{gap:17px}.welcome{padding:24px 8px}.welcome-logo{width:58px;height:58px;border-radius:20px;font-size:25px}.welcome h1{font-size:23px}.welcome p{font-size:12px}.message{max-width:94%;gap:7px}.avatar{width:30px;height:30px;flex-basis:30px}.bubble{padding:11px 13px;font-size:12px;border-radius:17px}.composer-dock{bottom:calc(12px + env(safe-area-inset-bottom));width:calc(100% - 24px);padding:10px 10px 9px;border-radius:21px}.model-line{margin-bottom:7px}.model-select-wrap{padding:6px 10px}.model-select-wrap select{font-size:11px;max-width:185px}.tools-row{gap:3px;padding-bottom:7px}.tool-btn{padding:7px 8px;font-size:10px;gap:5px}.tool-btn .tool-icon{font-size:14px}.input-row{gap:6px;padding-top:6px}.input-plus{width:34px;height:34px;flex-basis:34px}.input-row textarea{font-size:13px;min-height:39px;padding:8px 5px}.send-btn{width:41px;height:41px;flex-basis:41px}.input-bottom{font-size:10px;gap:9px}.disclaimer{font-size:9px}.thinking{font-size:10px;gap:7px}.thinking-badge{padding:6px 10px}}
+@media(max-width:370px){.mode-btn{padding:6px 8px}.brand-name small{display:none}.tool-btn{padding:7px 6px}.tool-btn .tool-text{display:none}.model-select-wrap select{max-width:145px}}
+</style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="sidebar-head">
-      <div class="brand"><div class="logo">M</div><div><div class="brand-name">MandoAI</div><div class="brand-caption">ذكاء اصطناعي • مساحة واحدة</div></div></div>
-      <button class="new-chat" id="clear" type="button"><span>＋</span> محادثة جديدة</button>
-    </div>
-    <div>
-      <p class="section-label">تخصيص التجربة</p>
-      <div class="setting-card">
-        <label for="model">نموذج الذكاء الاصطناعي</label>
-        <div class="select-wrap"><select id="model">
-          <optgroup label="نماذج النص">
-            <option>glm-5.3</option><option>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option>
-          </optgroup>
-          <optgroup label="الصور"><option value="glm-image">glm-image — غير متاح حاليًا</option></optgroup>
-        </select></div>
-        <p class="model-hint">اختر النموذج المناسب لمحادثتك. قد يختلف توفر النماذج حسب الخدمة الخارجية.</p>
-      </div>
-    </div>
-    <div class="side-info"><strong>مساحتك، بطريقتك</strong><p>سجل المحادثة واختيار النموذج محفوظان محليًا في هذا المتصفح فقط.</p></div>
-    <div class="side-bottom"><span>MANDOAI</span><span>الإصدار 1.1</span></div>
-  </aside>
-  <main class="main">
-    <header class="topbar"><div><div class="page-title">مساحة المحادثة</div><div class="page-subtitle">فكّر، اسأل، وابدأ من هنا</div></div><div class="top-actions"><div class="status"><i class="dot"></i> الواجهة جاهزة</div></div></header>
-    <section class="chat-panel">
-      <div class="chat-meta"><strong>المحادثة الحالية</strong><span class="model-chip" id="modelLabel">glm-5.3</span></div>
-      <div class="messages" id="messages"><div class="welcome" id="welcome"><div class="welcome-icon">✦</div><h1>مرحبًا بك في <span>MandoAI</span></h1><p>مساحتك الذكية للأفكار والأسئلة والإنجاز. اكتب ما يدور في ذهنك، ودع المحادثة تبدأ.</p><div class="suggestions">
-        <button class="suggestion" type="button" data-prompt="اشرح لي موضوعًا صعبًا بطريقة بسيطة مع أمثلة."><b>✧ تعلّم شيئًا جديدًا</b><span>شرح واضح خطوة بخطوة مع أمثلة.</span></button>
-        <button class="suggestion" type="button" data-prompt="ساعدني في كتابة خطة منظمة لمشروعي القادم."><b>▤ نظّم أفكارك</b><span>حوّل أفكارك إلى خطة عملية.</span></button>
-        <button class="suggestion" type="button" data-prompt="اقترح لي أفكارًا إبداعية لمشروع جديد."><b>✳ اكتشف أفكارًا</b><span>ابدأ بعصف ذهني مختلف.</span></button>
-        <button class="suggestion" type="button" data-prompt="راجع هذا الكود واشرح لي طريقة تحسينه."><b>⌘ ساعدني في البرمجة</b><span>افهم الكود وطوّر مشروعك.</span></button>
-      </div></div></div>
-      <div class="composer-area"><form class="composer" id="form"><textarea id="prompt" maxlength="8000" rows="1" placeholder="اكتب رسالتك إلى MandoAI..." aria-label="رسالتك" required></textarea><button class="send" id="send" type="submit" aria-label="إرسال الرسالة">↑</button></form><p class="composer-note">اضغط Enter للإرسال · Shift + Enter لسطر جديد</p></div>
-    </section>
-    <footer class="footer">MandoAI · يتصل بالخدمة الخارجية عبر الخادم، ولا يضع بيانات الاتصال في المتصفح.</footer>
-  </main>
+<header class="header">
+<button class="icon-btn" id="menuBtn" aria-label="القائمة">☰</button>
+<div class="brand"><div class="brand-mark">M</div><div class="brand-name">Mando<small>AI</small></div></div>
+<div class="header-actions">
+<button class="pill-btn primary" id="newChat">＋ محادثة جديدة</button>
+<div class="mode-group"><button class="mode-btn active" id="chatMode">Chat</button><button class="mode-btn" id="agentMode">Agent</button></div>
+<button class="pill-btn" id="shareBtn">مشاركة ↗</button>
 </div>
+</header>
+<main class="main">
+<section class="chat-area"><div class="messages" id="messages">
+<div class="welcome" id="welcome"><div class="welcome-logo">✦</div><h1>أهلاً بك في <span>MandoAI</span></h1><p>مساعدك الذكي للبحث والتفكير والإنجاز. اكتب سؤالك وابدأ محادثة جديدة.</p></div>
+</div></section>
+</main>
+<section class="composer-dock" aria-label="مربع كتابة الرسائل">
+<div class="model-line"><div class="model-select-wrap"><span class="online-dot"></span><select id="model" aria-label="اختيار النموذج">
+<option>glm-5.3</option><option selected>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option><option value="glm-image">glm-image</option>
+</select></div><span style="font-size:10px;color:#a09aaa">MandoAI</span></div>
+<div class="tools-row">
+<button class="tool-btn" id="searchBtn"><span class="tool-icon">⌕</span><span class="tool-text">بحث</span></button>
+<button class="tool-btn" id="attachBtn"><span class="tool-icon">▧</span><span class="tool-text">إرفاق</span></button>
+<button class="tool-btn record" id="thinkBtn"><span class="tool-icon">●</span><span class="tool-text">تفكير</span></button>
+<button class="tool-btn stop" id="stopBtn" hidden><span class="tool-icon">■</span><span class="tool-text">إيقاف</span></button>
+<input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden>
+</div>
+<form id="form">
+<div class="input-row"><button class="input-plus" id="plusBtn" type="button" aria-label="إضافات">＋</button><textarea id="prompt" rows="1" maxlength="8000" placeholder="اسأل أي شيء..." aria-label="اكتب رسالتك" required></textarea><button class="send-btn" id="send" type="submit" aria-label="إرسال">➤</button></div>
+<div class="input-bottom"><span id="selectedModel">GLM-5.3-Flash</span><select class="thinking-select" id="reasoning"><option value="thinking">Thinking</option><option value="quick">Quick</option></select><span style="margin-right:auto">Enter ↵</span></div>
+</form>
+<div class="disclaimer">قد تخطئ إجابات الذكاء الاصطناعي؛ راجع المعلومات المهمة دائمًا.</div>
+</section>
+<div class="toast" id="toast"></div>
 <script>
-const $=id=>document.getElementById(id);const model=$('model'),messagesEl=$('messages'),promptEl=$('prompt'),sendBtn=$('send');
-let history=[];try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]');if(!Array.isArray(history))history=[]}catch{history=[]}
-model.value=localStorage.getItem('mandoai-model')||'glm-5.3';$('modelLabel').textContent=model.value;
+const $=id=>document.getElementById(id),model=$('model'),messagesEl=$('messages'),promptEl=$('prompt'),sendBtn=$('send');
+let history=[],activeController=null,startedAt=0,toastTimer;
+try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]');if(!Array.isArray(history))history=[]}catch{history=[]}
+model.value=localStorage.getItem('mandoai-model')||'glm-5.3-flash';
 function save(){localStorage.setItem('mandoai-history',JSON.stringify(history));localStorage.setItem('mandoai-model',model.value)}
-function bubble(role,text,extra=''){const row=document.createElement('div');row.className='message-row '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'أنت':'M';const el=document.createElement('div');el.className='bubble '+role+' '+extra;el.textContent=text;row.appendChild(avatar);row.appendChild(el);messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;return el}
-function render(){messagesEl.innerHTML='';if(!history.length){messagesEl.innerHTML='<div class="welcome"><div class="welcome-icon">✦</div><h1>مرحبًا بك في <span>MandoAI</span></h1><p>مساحتك الذكية للأفكار والأسئلة والإنجاز. اكتب ما يدور في ذهنك، ودع المحادثة تبدأ.</p><div class="suggestions"><button class="suggestion" type="button" data-prompt="اشرح لي موضوعًا صعبًا بطريقة بسيطة مع أمثلة."><b>✧ تعلّم شيئًا جديدًا</b><span>شرح واضح خطوة بخطوة مع أمثلة.</span></button><button class="suggestion" type="button" data-prompt="ساعدني في كتابة خطة منظمة لمشروعي القادم."><b>▤ نظّم أفكارك</b><span>حوّل أفكارك إلى خطة عملية.</span></button><button class="suggestion" type="button" data-prompt="اقترح لي أفكارًا إبداعية لمشروع جديد."><b>✳ اكتشف أفكارًا</b><span>ابدأ بعصف ذهني مختلف.</span></button><button class="suggestion" type="button" data-prompt="راجع هذا الكود واشرح لي طريقة تحسينه."><b>⌘ ساعدني في البرمجة</b><span>افهم الكود وطوّر مشروعك.</span></button></div></div>';return}for(const m of history){if(m&&['user','assistant'].includes(m.role)&&typeof m.content==='string')bubble(m.role,m.content)}}
-render();model.addEventListener('change',()=>{$('modelLabel').textContent=model.value;save()});$('clear').onclick=()=>{history=[];save();render();promptEl.focus()};
-messagesEl.addEventListener('click',e=>{const btn=e.target.closest('[data-prompt]');if(btn){promptEl.value=btn.dataset.prompt;promptEl.focus();promptEl.dispatchEvent(new Event('input'))}});
-promptEl.addEventListener('input',()=>{promptEl.style.height='auto';promptEl.style.height=Math.min(promptEl.scrollHeight,160)+'px'});
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
+function welcome(){return '<div class="welcome"><div class="welcome-logo">✦</div><h1>أهلاً بك في <span>MandoAI</span></h1><p>مساعدك الذكي للبحث والتفكير والإنجاز. اكتب سؤالك وابدأ محادثة جديدة.</p></div>'}
+function addMessage(role,text,error=false){const row=document.createElement('div');row.className='message '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'أ':'M';const bubble=document.createElement('div');bubble.className='bubble '+role+(error?' error':'');bubble.textContent=text;row.append(avatar,bubble);messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;return bubble}
+function render(){messagesEl.innerHTML=history.length?'':welcome();for(const item of history){if(item&&['user','assistant'].includes(item.role)&&typeof item.content==='string')addMessage(item.role,item.content)}}
+render();
+model.addEventListener('change',()=>{localStorage.setItem('mandoai-model',model.value);$('selectedModel').textContent=model.value.toUpperCase()});
+$('newChat').onclick=()=>{if(activeController)activeController.abort();history=[];save();render();promptEl.focus()};
+$('menuBtn').onclick=()=>toast('قائمة المحادثات ستتوفر في تحديث لاحق.');
+$('agentMode').onclick=()=>toast('وضع Agent غير مفعّل في الخادم حاليًا.');
+$('chatMode').onclick=()=>{$('chatMode').classList.add('active');$('agentMode').classList.remove('active')};
+$('shareBtn').onclick=async()=>{try{if(navigator.share)await navigator.share({title:'MandoAI',url:location.href});else{await navigator.clipboard.writeText(location.href);toast('تم نسخ رابط الموقع')}}catch{}};
+$('searchBtn').onclick=()=>toast('البحث المباشر غير مفعّل في الخادم حاليًا.');
+$('attachBtn').onclick=()=>toast('رفع الصور غير مفعّل في واجهة الخادم الحالية.');
+$('plusBtn').onclick=()=>toast('الإضافات ستتوفر لاحقًا.');
+$('thinkBtn').onclick=()=>{const r=$('reasoning');r.value=r.value==='thinking'?'quick':'thinking';toast(r.value==='thinking'?'تم اختيار وضع التفكير':'تم اختيار الوضع السريع')};
+$('stopBtn').onclick=()=>{if(activeController)activeController.abort()};
+promptEl.addEventListener('input',()=>{promptEl.style.height='auto';promptEl.style.height=Math.min(promptEl.scrollHeight,130)+'px'});
 promptEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('form').requestSubmit()}});
-$('form').addEventListener('submit',async e=>{e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;const selected=model.value;if(selected==='glm-image'){bubble('assistant','نموذج glm-image ظاهر في القائمة، لكن كود تشغيل الصور في المصدر الأصلي معطّل ولم يتم التحقق من واجهته.','error');return}
-  history.push({role:'user',content:text});bubble('user',text);promptEl.value='';promptEl.style.height='auto';save();sendBtn.disabled=true;sendBtn.textContent='…';const reply=bubble('assistant','');let answer='';
-  try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:selected,messages:history})});if(!res.ok){let msg='تعذر تنفيذ الطلب.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
-    if(!res.body)throw new Error('المتصفح لم يستطع قراءة البث المباشر.');const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
-    while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let parts=buffer.split('\n\n');buffer=parts.pop();for(const part of parts){for(const line of part.split('\n')){if(!line.startsWith('data:'))continue;let obj;try{obj=JSON.parse(line.slice(5).trim())}catch{continue}if(obj.type==='delta'){answer+=obj.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}else if(obj.type==='error'||obj.type==='limit'||obj.type==='offline'){throw new Error(obj.message||'الخدمة غير متاحة حالياً.')}else if(obj.type==='notice'){if(obj.message)answer+='\n'+obj.message;reply.textContent=answer}else if(obj.type==='meta'&&obj.fallback){}}}}
-    if(!answer.trim())answer='لم يصل نص من الخدمة. قد يكون النموذج غير متاح حاليًا.';history.push({role:'assistant',content:answer});save();
-  }catch(err){reply.classList.add('error');reply.textContent=err.message||'حدث خطأ غير متوقع.';history.push({role:'assistant',content:reply.textContent});save()}
-  finally{sendBtn.disabled=false;sendBtn.textContent='↑';promptEl.focus()}
+$('form').addEventListener('submit',async e=>{
+e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;
+if(model.value==='glm-image'){toast('نموذج الصور غير مفعّل حاليًا.');return}
+history.push({role:'user',content:text});if(messagesEl.querySelector('.welcome'))messagesEl.innerHTML='';addMessage('user',text);save();promptEl.value='';promptEl.style.height='auto';
+sendBtn.disabled=true;sendBtn.textContent='…';$('stopBtn').hidden=false;startedAt=Date.now();const thinking=document.createElement('div');thinking.className='thinking';thinking.innerHTML='<span class="thinking-badge"><span class="thinking-dots">•••</span> Thinking</span><span id="thinkingText">Understanding the question...</span><span class="thinking-time">0s</span>';messagesEl.appendChild(thinking);
+const timeEl=thinking.querySelector('.thinking-time'),timer=setInterval(()=>{timeEl.textContent=Math.floor((Date.now()-startedAt)/1000)+'s'},1000);
+const reply=addMessage('assistant','');let answer='';activeController=new AbortController();
+try{
+const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:model.value,messages:history}),signal:activeController.signal});
+if(!res.ok){let msg='تعذر تنفيذ الطلب.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
+if(!res.body)throw new Error('المتصفح لا يدعم قراءة الاستجابة المتدفقة.');
+const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
+while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const chunks=buffer.split('\n\n');buffer=chunks.pop();for(const chunk of chunks){for(const line of chunk.split('\n')){if(!line.startsWith('data:'))continue;let event;try{event=JSON.parse(line.slice(5).trim())}catch{continue}
+if(event.type==='delta'){answer+=event.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}
+else if(['error','limit','offline'].includes(event.type))throw new Error(event.message||'الخدمة غير متاحة حاليًا.');
+else if(event.type==='notice'&&event.message){answer+='\n'+event.message;reply.textContent=answer}
+}}}
+if(!answer.trim())answer='لم يصل رد من الخدمة. حاول مرة أخرى.';history.push({role:'assistant',content:answer});save();
+}catch(err){const msg=err.name==='AbortError'?'تم إيقاف التوليد.':(err.message||'حدث خطأ غير متوقع.');reply.classList.add('error');reply.textContent=msg;history.push({role:'assistant',content:msg});save()}
+finally{clearInterval(timer);thinking.remove();sendBtn.disabled=false;sendBtn.textContent='➤';$('stopBtn').hidden=true;activeController=null;promptEl.focus()}
 });
 </script>
-</body>
-</html>
+</body></html>
