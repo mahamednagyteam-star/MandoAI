@@ -185,8 +185,8 @@ async def _ask_agent(client: httpx.AsyncClient, model: str, system: str, prompt:
         buffer = ""
         async for part in response.aiter_text():
             buffer += part
-            while "\\n\\n" in buffer:
-                raw, buffer = buffer.split("\\n\\n", 1)
+            while "\n\n" in buffer:
+                raw, buffer = buffer.split("\n\n", 1)
                 for line in raw.splitlines():
                     if not line.startswith("data:"):
                         continue
@@ -229,10 +229,10 @@ async def run_agents(body: AgentRunRequest):
                     yield sse({"type": "agent_start", "agent": agent_id, "name": name, "index": index, "total": len(selected)})
                     context = ""
                     if previous:
-                        context = "\\n\\nنتائج الوكلاء السابقين (استخدمها وراجعها ولا تكررها):\\n" + "\\n\\n".join(
+                        context = "\n\nنتائج الوكلاء السابقين (استخدمها وراجعها ولا تكررها):\n" + "\n\n".join(
                             f"{n}: {answer[:5000]}" for n, answer in previous
                         )
-                    prompt = f"المهمة الأصلية:\\n{body.task}{context}\\n\\nقدّم مخرجات هذا الدور فقط بوضوح."
+                    prompt = f"المهمة الأصلية:\n{body.task}{context}\n\nقدّم مخرجات هذا الدور فقط بوضوح."
                     answer = await _ask_agent(client, body.model, system, prompt)
                     if not answer:
                         answer = "لم يُرجع هذا الوكيل محتوى."
