@@ -31,3 +31,22 @@ def test_image_model_is_explicitly_unavailable():
         json={"model": "glm-image", "messages": [{"role": "user", "content": "draw"}]},
     )
     assert response.status_code == 501
+
+
+def test_model_catalog_contains_only_glm_text_models():
+    response = client.get("/api/models")
+    assert response.status_code == 200
+    models = response.json()["models"]
+    assert models
+    assert all(item["provider"] == "GLM" for item in models)
+    assert all(item["id"].startswith("glm-") for item in models)
+    assert "provider-openai" not in {item["id"] for item in models}
+
+
+def test_removed_provider_models_are_rejected():
+    for model in ("provider-openai", "ling-3.0-flash", "gpt-5.4-mini"):
+        response = client.post(
+            "/api/chat",
+            json={"model": model, "messages": [{"role": "user", "content": "hello"}]},
+        )
+        assert response.status_code == 400
