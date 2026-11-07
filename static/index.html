@@ -605,11 +605,11 @@ async function runAgentTask(text){
   const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
   while(true){
    const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});
-   const chunks=buffer.split('\\n\\n');buffer=chunks.pop();
-   for(const chunk of chunks)for(const line of chunk.split('\\n')){
+   const chunks=buffer.split('\n\n');buffer=chunks.pop();
+   for(const chunk of chunks)for(const line of chunk.split('\n')){
     if(!line.startsWith('data:'))continue;let event;try{event=JSON.parse(line.slice(5).trim())}catch{continue}
     if(event.type==='agent_start')progress.textContent='يعمل الآن: '+(event.name||event.agent)+' ('+event.index+'/'+event.total+')';
-    else if(event.type==='agent_done'){answer+=(answer?'\\n\\n':'')+'## '+(event.name||event.agent)+'\\n\\n'+(event.text||'');render()}
+    else if(event.type==='agent_done'){answer+=(answer?'\n\n':'')+'## '+(event.name||event.agent)+'\n\n'+(event.text||'');render()}
     else if(event.type==='error')throw new Error(event.message||'تعذر إكمال مهمة الوكلاء.');
     else if(event.type==='run_done')progress.textContent='اكتمل عمل '+(event.agents_completed||selectedAgents.length)+' وكلاء بنجاح.';
    }
@@ -618,7 +618,7 @@ async function runAgentTask(text){
   conv.messages.push({role:'assistant',content:answer});conv.updatedAt=Date.now();save();renderSidebar();render();addActions(row,answer);
  }catch(err){
   const msg=err.name==='AbortError'?'تم إيقاف تشغيل الوكلاء.':(err.message||'حدث خطأ غير متوقع.');
-  const finalText=answer?answer+'\\n\\n**تنبيه:** '+msg:msg;
+  const finalText=answer?answer+'\n\n**تنبيه:** '+msg:msg;
   conv.messages.push({role:'assistant',content:finalText,error:true});conv.updatedAt=Date.now();save();renderSidebar();
   mdEl.innerHTML=mdToHtml(finalText);row.querySelector('.bubble').classList.add('error');
  }finally{generating=false;activeController=null;$('send').disabled=false;$('stopChip').hidden=true;$('prompt').focus();scrollBottom()}
