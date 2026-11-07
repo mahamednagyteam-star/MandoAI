@@ -282,16 +282,32 @@ textarea#prompt::placeholder{color:#a8a7b0}
 /* ================= State ================= */
 const $=id=>document.getElementById(id);
 const MODELS=[
- {id:'glm-5.3',label:'GLM-5.3'},
- {id:'glm-5.3-flash',label:'GLM-5.3-Flash'},
- {id:'glm-5.2',label:'GLM-5.2'},
- {id:'glm-5.1',label:'GLM-5.1'},
- {id:'glm-4.7',label:'GLM-4.7'},
- {id:'glm-4.6',label:'GLM-4.6'},
- {id:'glm-4.5',label:'GLM-4.5'},
- {id:'glm-4.7-flash',label:'GLM-4.7-Flash'},
- {id:'glm-4.5-flash',label:'GLM-4.5-Flash'},
- {id:'glm-4.7-flashx',label:'GLM-4.7-FlashX'},
+ {id:'glm-5.3',label:'GLM-5.3',enabled:true},
+ {id:'glm-5.3-flash',label:'GLM-5.3-Flash',enabled:true},
+ {id:'glm-5.2',label:'GLM-5.2',enabled:true},
+ {id:'glm-5.1',label:'GLM-5.1',enabled:true},
+ {id:'glm-4.7',label:'GLM-4.7',enabled:true},
+ {id:'glm-4.6',label:'GLM-4.6',enabled:true},
+ {id:'glm-4.5',label:'GLM-4.5',enabled:true},
+ {id:'glm-4.7-flash',label:'GLM-4.7-Flash',enabled:true},
+ {id:'glm-4.5-flash',label:'GLM-4.5-Flash',enabled:true},
+ {id:'glm-4.7-flashx',label:'GLM-4.7-FlashX',enabled:true},
+ // Models found in the supplied scripts. These remain visible but locked until
+ // an official provider API integration and credentials are configured.
+ {id:'provider-perplexity',label:'Perplexity',provider:'AI Multi Search',enabled:false},
+ {id:'provider-claude',label:'Claude',provider:'AI Multi Search',enabled:false},
+ {id:'provider-openai',label:'OpenAI',provider:'AI Multi Search',enabled:false},
+ {id:'provider-deepseek',label:'DeepSeek',provider:'AI Multi Search',enabled:false},
+ {id:'provider-gemini',label:'Gemini',provider:'AI Multi Search',enabled:false},
+ {id:'provider-llama',label:'Llama',provider:'AI Multi Search',enabled:false},
+ {id:'ling-3.0-flash',label:'Ling 3.0 Flash',provider:'Ptero',enabled:false},
+ {id:'deepseek-v4.1-flash:free',label:'DeepSeek v4.1 Flash',provider:'Ptero',enabled:false},
+ {id:'atria-dawn-preview',label:'Atria-Dawn-Preview',provider:'Ptero',enabled:false},
+ {id:'agnes-2.5-flash',label:'Agnes 2.5 Flash',provider:'Ptero',enabled:false},
+ {id:'agnes-3.0-flash',label:'Agnes 3.0 Flash',provider:'Ptero',enabled:false},
+ {id:'laguna-s-2.1',label:'Laguna S 2.1',provider:'Ptero',enabled:false},
+ {id:'gpt-5.4-mini',label:'GPT-5.4 Mini',provider:'AppZone AI',enabled:false},
+ {id:'qwen-3.7-plus',label:'Qwen 3.7 Plus',provider:'AppZone AI',enabled:false},
 ];
 const SUGGESTIONS=['اشرح لي موضوعًا معقدًا ببساطة','اكتب لي دالة بايثون مع شرح','لخّص لي نصًا طويلًا','أعطني خطة عمل لمشروع صغير'];
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -375,9 +391,13 @@ function openModelMenu(anchor){
  const m=document.createElement('div');m.className='menu-pop';
  for(const md of MODELS){
   const b=document.createElement('button');
-  b.innerHTML='<span class="mdot" style="background:'+(md.id===model?'var(--green)':'#d4d3dc')+'"></span>'+md.label+(md.id===model?'<span class="m-check">✓</span>':'');
+  const locked=md.enabled===false;
+  b.disabled=locked;
+  b.title=locked?'يتطلب ربط واجهة API رسمية ومفتاح مزود الخدمة'+(md.provider?' — '+md.provider:''):'';
+  b.innerHTML='<span class="mdot" style="background:'+(md.id===model?'var(--green)':'#d4d3dc')+'"></span>'+md.label+(locked?'<small style="margin-inline-start:auto;color:#999;font-size:10px">يتطلب ربط API</small>':(md.id===model?'<span class="m-check">✓</span>':''));
   if(md.id===model)b.classList.add('sel');
-  b.onclick=()=>{model=md.id;save();syncModelUI();closePop()};
+  if(locked)b.classList.add('model-locked');
+  b.onclick=()=>{if(locked){toast('هذا النموذج مُضاف للقائمة، لكنه يحتاج API رسميًا ومفتاحًا صالحًا قبل تشغيله.');return}model=md.id;save();syncModelUI();closePop()};
   m.appendChild(b);
  }
  anchor.appendChild(m);menuPop=m;
@@ -603,7 +623,7 @@ $('form').addEventListener('submit',async e=>{
 });
 
 /* ================= Init ================= */
-if(!MODELS.some(m=>m.id===model))model='glm-5.3-flash';
+if(!MODELS.some(m=>m.id===model&&m.enabled!==false))model='glm-5.3-flash';
 syncModelUI();renderSidebar();renderMessages();
 </script>
 </body>
