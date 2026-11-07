@@ -302,31 +302,15 @@ const MODELS=[
  {id:'glm-4.7-flash',label:'GLM-4.7-Flash',enabled:true},
  {id:'glm-4.5-flash',label:'GLM-4.5-Flash',enabled:true},
  {id:'glm-4.7-flashx',label:'GLM-4.7-FlashX',enabled:true},
- // Models found in the supplied scripts. These remain visible but locked until
- // an official provider API integration and credentials are configured.
- {id:'provider-perplexity',label:'Perplexity',provider:'AI Multi Search',enabled:false},
- {id:'provider-claude',label:'Claude',provider:'AI Multi Search',enabled:false},
- {id:'provider-openai',label:'OpenAI',provider:'AI Multi Search',enabled:false},
- {id:'provider-deepseek',label:'DeepSeek',provider:'AI Multi Search',enabled:false},
- {id:'provider-gemini',label:'Gemini',provider:'AI Multi Search',enabled:false},
- {id:'provider-llama',label:'Llama',provider:'AI Multi Search',enabled:false},
- {id:'ling-3.0-flash',label:'Ling 3.0 Flash',provider:'Ptero',enabled:false},
- {id:'deepseek-v4.1-flash:free',label:'DeepSeek v4.1 Flash',provider:'Ptero',enabled:false},
- {id:'atria-dawn-preview',label:'Atria-Dawn-Preview',provider:'Ptero',enabled:false},
- {id:'agnes-2.5-flash',label:'Agnes 2.5 Flash',provider:'Ptero',enabled:false},
- {id:'agnes-3.0-flash',label:'Agnes 3.0 Flash',provider:'Ptero',enabled:false},
- {id:'laguna-s-2.1',label:'Laguna S 2.1',provider:'Ptero',enabled:false},
- {id:'gpt-5.4-mini',label:'GPT-5.4 Mini',provider:'AppZone AI',enabled:false},
- {id:'qwen-3.7-plus',label:'Qwen 3.7 Plus',provider:'AppZone AI',enabled:false},
 ];
 async function refreshModelAvailability(){
  try{
   const response=await fetch('/api/models',{headers:{'Accept':'application/json'}});
   if(!response.ok)return;
   const data=await response.json();
-  const states=new Map((data.models||[]).map(item=>[item.id,!!item.enabled]));
-  MODELS.forEach(item=>{if(item.provider) item.enabled=states.get(item.id)===true;});
-  if(!MODELS.some(item=>item.id===model&&item.enabled!==false))model='glm-5.3-flash';
+  const states=new Set((data.models||[]).map(item=>item.id));
+  MODELS.forEach(item=>{item.enabled=states.has(item.id);});
+  if(!MODELS.some(item=>item.id===model&&item.enabled))model='glm-5.3-flash';
   syncModelUI();save();
  }catch{}
 }
