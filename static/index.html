@@ -60,6 +60,19 @@ body{perspective:1400px;background:radial-gradient(ellipse at 50% 8%,#e8defd 0,t
 @keyframes float3d{0%,100%{transform:rotateX(12deg) rotateY(-12deg) translateY(0) translateZ(24px)}50%{transform:rotateX(5deg) rotateY(9deg) translateY(-8px) translateZ(32px)}}
 @keyframes brandFloat{0%,100%{transform:rotate(-9deg) translateY(0) translateZ(20px)}50%{transform:rotate(-4deg) translateY(-3px) translateZ(26px)}}
 
+
+/* Interactive 3D: pointer + device tilt */
+@media(prefers-reduced-motion:no-preference){
+ .tilt3d{transform-style:preserve-3d;will-change:transform;transition:transform .14s ease-out,box-shadow .2s}
+ .brand-mark.tilt3d,.welcome-logo.tilt3d{animation:none!important}
+ .brand-mark.tilt3d{transform:perspective(700px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateZ(18px) rotate(-5deg)}
+ .welcome-logo.tilt3d{transform:perspective(800px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateZ(25px)}
+ .composer-dock.tilt3d{transform:translateX(-50%) perspective(1100px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateZ(22px)}
+ .bubble.tilt3d,.model-select-wrap.tilt3d,.tool-btn.tilt3d,.avatar.tilt3d{transform:perspective(750px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateZ(8px)}
+ .tilt3d.is-tilting{transition:transform .06s linear}
+}
+@media(prefers-reduced-motion:reduce){.tilt3d{transform:none!important;transition:none!important}}
+
 @media(min-width:900px){.main{padding-top:38px}.chat-area{padding-bottom:255px}.composer-dock{bottom:28px}}
 @media(max-width:650px){.header{height:62px;padding:0 13px;gap:10px}.brand{min-width:0;gap:8px}.brand-mark{width:35px;height:35px;border-radius:12px}.brand-name{font-size:17px}.brand-name small{font-size:9px}.header-actions{gap:5px}.header-actions>.pill-btn{display:none}.mode-group{padding:2px}.mode-btn{padding:7px 10px;font-size:10px}.main{padding:18px 13px 12px;min-height:calc(100vh - 62px)}.chat-area{padding-bottom:255px}.messages{gap:17px}.welcome{padding:24px 8px}.welcome-logo{width:58px;height:58px;border-radius:20px;font-size:25px}.welcome h1{font-size:23px}.welcome p{font-size:12px}.message{max-width:94%;gap:7px}.avatar{width:30px;height:30px;flex-basis:30px}.bubble{padding:11px 13px;font-size:12px;border-radius:17px}.composer-dock{bottom:calc(12px + env(safe-area-inset-bottom));width:calc(100% - 24px);padding:10px 10px 9px;border-radius:21px}.model-line{margin-bottom:7px}.model-select-wrap{padding:6px 10px}.model-select-wrap select{font-size:11px;max-width:185px}.tools-row{gap:3px;padding-bottom:7px}.tool-btn{padding:7px 8px;font-size:10px;gap:5px}.tool-btn .tool-icon{font-size:14px}.input-row{gap:6px;padding-top:6px}.input-plus{width:34px;height:34px;flex-basis:34px}.input-row textarea{font-size:13px;min-height:39px;padding:8px 5px}.send-btn{width:41px;height:41px;flex-basis:41px}.input-bottom{font-size:10px;gap:9px}.disclaimer{font-size:9px}.thinking{font-size:10px;gap:7px}.thinking-badge{padding:6px 10px}}
 @media(max-width:370px){.mode-btn{padding:6px 8px}.brand-name small{display:none}.tool-btn{padding:7px 6px}.tool-btn .tool-text{display:none}.model-select-wrap select{max-width:145px}}
@@ -143,5 +156,58 @@ if(!answer.trim())answer='لم يصل رد من الخدمة. حاول مرة أ
 }catch(err){const msg=err.name==='AbortError'?'تم إيقاف التوليد.':(err.message||'حدث خطأ غير متوقع.');reply.classList.add('error');reply.textContent=msg;history.push({role:'assistant',content:msg});save()}
 finally{clearInterval(timer);thinking.remove();sendBtn.disabled=false;sendBtn.textContent='➤';$('stopBtn').hidden=true;activeController=null;promptEl.focus()}
 });
+
+// Interactive 3D motion: mouse / trackpad / phone orientation.
+(()=>{
+ const selectors='.brand-mark,.welcome-logo,.composer-dock,.bubble,.model-select-wrap,.tool-btn,.avatar';
+ const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(reduce)return;
+ const maxTilt=10;
+ function attach(root=document){
+  root.querySelectorAll(selectors).forEach(el=>{
+   if(el.dataset.tiltReady)return;el.dataset.tiltReady='1';el.classList.add('tilt3d');
+   el.addEventListener('pointermove',ev=>{
+    if(ev.pointerType==='touch'||window.matchMedia('(pointer: coarse)').matches)return;
+    const r=el.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,y=(ev.clientY-r.top)/r.height;
+    el.style.setProperty('--tilt-x',((.5-y)*maxTilt).toFixed(2)+'deg');
+    el.style.setProperty('--tilt-y',((x-.5)*maxTilt).toFixed(2)+'deg');
+    el.classList.add('is-tilting');
+   });
+   el.addEventListener('pointerleave',()=>reset(el));
+   el.addEventListener('pointerdown',()=>el.classList.remove('is-tilting'));
+  });
+ }
+ function reset(el){el.style.setProperty('--tilt-x','0deg');el.style.setProperty('--tilt-y','0deg');el.classList.remove('is-tilting')}
+ attach();
+ const observer=new MutationObserver(()=>attach());
+ observer.observe(document.getElementById('messages')||document.body,{childList:true,subtree:true});
+ let orientationEnabled=false;
+ function enableOrientation(){
+  if(orientationEnabled)return;orientationEnabled=true;
+  window.addEventListener('deviceorientation',ev=>{
+   if(ev.beta==null||ev.gamma==null)return;
+   const x=Math.max(-1,Math.min(1,ev.beta/35)),y=Math.max(-1,Math.min(1,ev.gamma/35));
+   document.querySelectorAll('.tilt3d').forEach(el=>{
+    if(el.matches('.bubble,.avatar,.tool-btn'))return;
+    el.style.setProperty('--tilt-x',(-x*maxTilt*.65).toFixed(2)+'deg');
+    el.style.setProperty('--tilt-y',(y*maxTilt*.8).toFixed(2)+'deg');
+   });
+  },{passive:true});
+ }
+ // Android browsers normally allow orientation events directly.
+ if('DeviceOrientationEvent' in window&&!('requestPermission' in DeviceOrientationEvent))enableOrientation();
+ // iOS requires a user gesture; tap the logo once to grant motion access.
+ const logo=document.querySelector('.brand-mark');
+ if(logo)logo.addEventListener('click',async()=>{
+  try{
+   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    const permission=await DeviceOrientationEvent.requestPermission();
+    if(permission==='granted'){enableOrientation();toast('تم تفعيل الحركة ثلاثية الأبعاد مع حركة الهاتف')}
+    else toast('لم يتم السماح بحساس حركة الهاتف');
+   }else{enableOrientation();toast('حركة الهاتف ثلاثية الأبعاد مفعّلة')}
+  }catch{toast('تعذر تفعيل حساس الحركة في هذا المتصفح')}
+ });
+})();
+
 </script>
 </body></html>
