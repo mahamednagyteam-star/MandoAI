@@ -287,8 +287,7 @@ async def _ask_agent(client: httpx.AsyncClient, model: str, system: str, prompt:
     async with client.stream(
         "POST", "/wp-json/glm-chat/v1/message",
         json={"model": model, "messages": [
-            {"role": "assistant", "content": system},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": "تعليمات دور الوكيل:\\n" + system + "\\n\\nالمهمة والبيانات:\\n" + prompt}
         ]}, headers=headers,
     ) as response:
         if response.status_code != 200:
@@ -323,7 +322,7 @@ async def list_agents():
 async def run_agents(body: AgentRunRequest):
     if body.model not in TEXT_MODELS:
         raise HTTPException(status_code=400, detail="اختر نموذج GLM نصياً صالحاً.")
-    selected = list(dict.fromkeys(x for x in body.agents if x in AGENTS))[:5]
+    selected = list(dict.fromkeys(x for x in body.agents if x in AGENTS))[:7]
     if not selected:
         raise HTTPException(status_code=400, detail="اختر وكيلاً واحداً على الأقل.")
 
