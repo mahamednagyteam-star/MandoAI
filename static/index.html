@@ -587,7 +587,7 @@ function ensureConversation(firstText){
  }
  return conv;
 }
-async function runAgentTask(text){
+async function runAgentTask(text, automatic=false){
  if(!selectedAgents.length){toast('اختر وكيلاً واحداً على الأقل');return}
  const conv=ensureConversation(text);conv.messages.push({role:'user',content:text});
  if(conv.messages.length===1)conv.title='Agent: '+text.slice(0,35);conv.updatedAt=Date.now();
@@ -599,7 +599,7 @@ async function runAgentTask(text){
  $('messages').appendChild(row);scrollBottom();let answer='';activeController=new AbortController();
  const render=()=>{mdEl.innerHTML=mdToHtml(answer);scrollBottom()};
  try{
-  const res=await fetch('/api/agents/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:text,model:model,agents:selectedAgents}),signal:activeController.signal});
+  const endpoint=automatic?'/api/auto/run':'/api/agents/run';\n  const payload=automatic?{task:text,model:model}:{task:text,model:model,agents:selectedAgents};\n  const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:activeController.signal});
   if(!res.ok){let msg='تعذر تشغيل الوكلاء.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
   if(!res.body)throw new Error('المتصفح لا يدعم الاستجابة المتدفقة.');
   const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
@@ -608,7 +608,7 @@ async function runAgentTask(text){
    const chunks=buffer.split('\n\n');buffer=chunks.pop();
    for(const chunk of chunks)for(const line of chunk.split('\n')){
     if(!line.startsWith('data:'))continue;let event;try{event=JSON.parse(line.slice(5).trim())}catch{continue}
-    if(event.type==='agent_start')progress.textContent='يعمل الآن: '+(event.name||event.agent)+' ('+event.index+'/'+event.total+')';
+    if(event.type==='route')progress.textContent='تم اختيار '+event.agents.length+' وكلاء تلقائيًا...';\n    else if(event.type==='agent_start')progress.textContent='يعمل الآن: '+(event.name||event.agent)+' ('+event.index+'/'+event.total+')';
     else if(event.type==='agent_done'){answer+=(answer?'\n\n':'')+'## '+(event.name||event.agent)+'\n\n'+(event.text||'');render()}
     else if(event.type==='error')throw new Error(event.message||'تعذر إكمال مهمة الوكلاء.');
     else if(event.type==='run_done')progress.textContent='اكتمل عمل '+(event.agents_completed||selectedAgents.length)+' وكلاء بنجاح.';
@@ -627,7 +627,7 @@ $('form').addEventListener('submit',async e=>{
  e.preventDefault();
  const text=$('prompt').value.trim();
  if(!text||generating)return;
- if(chatMode==='agent'){await runAgentTask(text);return;}
+ await runAgentTask(text,chatMode!=='agent');return;
  const conv=ensureConversation(text);
  conv.messages.push({role:'user',content:text});
  if(conv.messages.length===1)conv.title=text.slice(0,42)+(text.length>42?'…':'');
