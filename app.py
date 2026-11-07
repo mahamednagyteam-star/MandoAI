@@ -314,6 +314,60 @@ async def _ask_agent(client: httpx.AsyncClient, model: str, system: str, prompt:
                         raise RuntimeError(str(event.get("message") or "فشل الوكيل"))
     return "".join(chunks).strip()
 
+def choose_agents_for_task(task: str) -> list[str]:
+    """Route ordinary user requests to relevant specialist roles."""
+    t = task.lower()
+    chosen = ["brain"]
+    groups = {
+        "code": ["code", "python", "javascript", "html", "css", "برمج", "كود", "خطأ", "مشكلة", "تصليح", "api", "جيت هاب", "github", "تطبيق", "موقع", "build", "debug"],
+        "web": ["ابحث", "بحث", "آخر", "اليوم", "حديث", "مصدر", "مقارنة", "سعر", "خبر", "weather", "search", "latest", "compare", "news", "source"],
+        "files": ["ملف", "ملفات", "pdf", "docx", "xlsx", "csv", "مرفق", "مستند", "document", "file", "upload"],
+        "memory": ["تذكر", "اتفقنا", "سابق", "المحادثة", "قبل", "remember", "previous", "earlier"],
+        "subagent": ["خطة", "مشروع", "حلل", "تحليل", "صمم", "انشئ", "أنشئ", "اكتب", "جهز", "build", "plan", "design", "create", "analyze"]
+    }
+    for agent_id, words in groups.items():
+        if any(word in t for word in words):
+            chosen.append(agent_id)
+    chosen.append("core")
+    return list(dict.fromkeys(chosen))[:7]
+
+
+class AutoAgentRunRequest(BaseModel):
+    task: str = Field(min_length=1, max_length=8000)
+    model: str = Field(default="glm-5.3-flash", min_length=1, max_length=40)
+
+
+@app.post("/api/auto/run")
+async def auto_run_agents(body: AutoAgentRunRequest):
+    if body.model not in TEXT_MODELS:
+        raise HTTPException(status_code=400, detail="التشغيل التلقائي للوكلاء يتطلب اختيار نموذج GLM نصي.")
+    selected = choose_agents_for_task(body.task)
+    async def generate_auto():
+        yield sse({"type": "route", "agents": selected, "automatic": True})
+        previous = []
+        timeout = httpx.Timeout(180.0, connect=15.0)
+        try:
+            async with httpx.AsyncClient(base_url=UPSTREAM, headers={"User-Agent": USER_AGENT}, timeout=timeout, follow_redirects=True) as client:
+                for index, agent_id in enumerate(selected, 1):
+                    name, system = AGENTS[agent_id]
+                    yield sse({"type": "agent_start", "agent": agent_id, "name": name, "index": index, "total": len(selected)})
+                    context = ""
+                    if previous:
+                        context = "\n\nنتائج الأدوار السابقة:\n" + "\n\n".join(f"{n}: {answer[:3500]}" for n, answer in previous)
+                    prompt = f"طلب المستخدم الأصلي:\n{body.task}{context}\n\nأنجز دورك فقط. إذا كان الطلب يحتاج بحثًا مباشرًا أو ملفات/أدوات غير متاحة، صرّح بذلك ولا تختلق نتائج أو تنفيذًا."
+                    answer = await _ask_agent(client, body.model, system, prompt)
+                    if not answer:
+                        answer = "لم يُرجع هذا الوكيل محتوى."
+                    previous.append((name, answer))
+                    yield sse({"type": "agent_done", "agent": agent_id, "name": name, "text": answer, "index": index, "total": len(selected)})
+            yield sse({"type": "run_done", "result": previous[-1][1], "agents_completed": len(previous)})
+        except httpx.TimeoutException:
+            yield sse({"type": "error", "message": "انتهت مهلة تشغيل الوكلاء. حاول مرة أخرى."})
+        except Exception as exc:
+            yield sse({"type": "error", "message": str(exc)[:400]})
+    return StreamingResponse(generate_auto(), media_type="text/event-stream", headers={"Cache-Control":"no-cache","X-Accel-Buffering":"no","Connection":"keep-alive"})
+
+
 @app.get("/api/agents")
 async def list_agents():
     return {"agents": [{"id": key, "name": value[0]} for key, value in AGENTS.items()]}
