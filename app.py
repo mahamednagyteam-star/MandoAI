@@ -18,7 +18,32 @@ TEXT_MODELS = {
     "glm-5.3", "glm-5.3-flash", "glm-5.2", "glm-5.1", "glm-4.7",
     "glm-4.6", "glm-4.5", "glm-4.7-flash", "glm-4.5-flash", "glm-4.7-flashx",
 }
-ALL_MODELS = TEXT_MODELS | {"glm-image"}
+# Provider connections use official APIs only. Credentials are read from Railway env vars.
+PROVIDER_CONFIG = {
+    "provider-openai": {"name": "OpenAI", "kind": "openai", "key": "OPENAI_API_KEY", "base": "OPENAI_BASE_URL", "default_base": "https://api.openai.com/v1", "model": "OPENAI_MODEL", "default_model": "gpt-4.1-mini"},
+    "provider-deepseek": {"name": "DeepSeek", "kind": "openai", "key": "DEEPSEEK_API_KEY", "base": "DEEPSEEK_BASE_URL", "default_base": "https://api.deepseek.com/v1", "model": "DEEPSEEK_MODEL", "default_model": "deepseek-chat"},
+    "provider-perplexity": {"name": "Perplexity", "kind": "openai", "key": "PERPLEXITY_API_KEY", "base": "PERPLEXITY_BASE_URL", "default_base": "https://api.perplexity.ai", "model": "PERPLEXITY_MODEL", "default_model": "sonar"},
+    "provider-claude": {"name": "Claude", "kind": "anthropic", "key": "ANTHROPIC_API_KEY", "base": "ANTHROPIC_BASE_URL", "default_base": "https://api.anthropic.com", "model": "ANTHROPIC_MODEL", "default_model": "claude-3-5-haiku-latest"},
+    "provider-gemini": {"name": "Gemini", "kind": "gemini", "key": "GEMINI_API_KEY", "base": "GEMINI_BASE_URL", "default_base": "https://generativelanguage.googleapis.com", "model": "GEMINI_MODEL", "default_model": "gemini-2.5-flash"},
+    "provider-llama": {"name": "Llama", "kind": "openai", "key": "LLAMA_API_KEY", "base": "LLAMA_BASE_URL", "default_base": "", "model": "LLAMA_MODEL", "default_model": ""},
+}
+ALL_MODELS = TEXT_MODELS | {"glm-image"} | set(PROVIDER_CONFIG)
+
+def provider_is_ready(model_id: str) -> bool:
+    cfg = PROVIDER_CONFIG.get(model_id)
+    if not cfg or not os.getenv(cfg["key"]):
+        return False
+    base = os.getenv(cfg["base"], cfg["default_base"])
+    model = os.getenv(cfg["model"], cfg["default_model"])
+    return bool(base and model)
+
+def public_model_catalog():
+    catalog = [{"id": model_id, "enabled": True, "provider": "GLM"} for model_id in sorted(TEXT_MODELS)]
+    catalog.extend(
+        {"id": model_id, "enabled": provider_is_ready(model_id), "provider": cfg["name"]}
+        for model_id, cfg in PROVIDER_CONFIG.items()
+    )
+    return catalog
 
 app = FastAPI(title="MandoAI", version="1.0.0")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -37,6 +62,88 @@ async def home():
 @app.get("/api/health")
 async def health():
     return {"ok": True, "service": "MandoAI"}
+
+@app.get("/api/models")
+async def list_models():
+    return {"models": public_model_catalog()}
+
+
+async def _provider_stream(model_id: str, messages: list[dict]) -> AsyncIterator[dict]:
+    cfg = PROVIDER_CONFIG[model_id]
+    if not provider_is_ready(model_id):
+        yield {"type": "error", "message": f"مزود {cfg['name']} غير مهيأ. أضف مفتاح API الرسمي وإعدادات النموذج في Railway Variables."}
+        return
+
+    api_key = os.environ[cfg["key"]]
+    base = os.getenv(cfg["base"], cfg["default_base"]).rstrip("/")
+    model_name = os.getenv(cfg["model"], cfg["default_model"])
+    timeout = httpx.Timeout(180.0, connect=20.0)
+
+    if cfg["kind"] == "openai":
+        url = base + "/chat/completions"
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "Accept": "text/event-stream"}
+        payload = {"model": model_name, "messages": messages, "stream": True}
+    elif cfg["kind"] == "anthropic":
+        url = base + "/v1/messages"
+        headers = {"x-api-key": api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json", "Accept": "text/event-stream"}
+        system_text = "\\n".join(m["content"] for m in messages if m["role"] == "system")
+        chat_messages = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in {"user", "assistant"}]
+        payload = {"model": model_name, "max_tokens": 4096, "stream": True, "messages": chat_messages}
+        if system_text:
+            payload["system"] = system_text
+    else:
+        url = f"{base}/v1beta/models/{model_name}:streamGenerateContent?alt=sse"
+        headers = {"x-goog-api-key": api_key, "Content-Type": "application/json", "Accept": "text/event-stream"}
+        contents = [{"role": "model" if m["role"] == "assistant" else "user", "parts": [{"text": m["content"]}]} for m in messages if m["role"] in {"user", "assistant"}]
+        payload = {"contents": contents}
+
+    try:
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+            async with client.stream("POST", url, headers=headers, json=payload) as response:
+                if response.status_code != 200:
+                    detail = (await response.aread()).decode("utf-8", "replace")[:400]
+                    yield {"type": "error", "message": f"{cfg['name']} API أعادت HTTP {response.status_code}: {detail}"}
+                    return
+                async for line in response.aiter_lines():
+                    if not line or not line.startswith("data:"):
+                        continue
+                    raw = line[5:].strip()
+                    if not raw or raw == "[DONE]":
+                        continue
+                    try:
+                        event = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    text = ""
+                    if cfg["kind"] == "openai":
+                        choices = event.get("choices") or []
+                        if choices:
+                            delta = choices[0].get("delta") or {}
+                            piece = delta.get("content")
+                            if isinstance(piece, str):
+                                text = piece
+                            elif isinstance(piece, list):
+                                text = "".join(x.get("text", "") for x in piece if isinstance(x, dict))
+                    elif cfg["kind"] == "anthropic":
+                        if event.get("type") == "content_block_delta":
+                            text = (event.get("delta") or {}).get("text", "")
+                        elif event.get("type") == "error":
+                            yield {"type": "error", "message": "أعاد Claude خطأ أثناء البث."}
+                            return
+                    else:
+                        candidates = event.get("candidates") or []
+                        if candidates:
+                            parts = ((candidates[0].get("content") or {}).get("parts") or [])
+                            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                    if text:
+                        yield {"type": "delta", "text": text}
+    except httpx.TimeoutException:
+        yield {"type": "error", "message": f"انتهت مهلة الاتصال بمزود {cfg['name']}."}
+    except httpx.HTTPError as exc:
+        yield {"type": "error", "message": f"تعذر الاتصال بمزود {cfg['name']}: {str(exc)[:250]}"}
+    except Exception:
+        yield {"type": "error", "message": f"حدث خطأ غير متوقع مع مزود {cfg['name']}."}
+
 
 
 def sse(event: dict) -> bytes:
@@ -64,6 +171,11 @@ async def chat(body: ChatRequest):
         clean_messages.append({"role": role, "content": content})
 
     async def generate() -> AsyncIterator[bytes]:
+        if body.model in PROVIDER_CONFIG:
+            async for event in _provider_stream(body.model, clean_messages):
+                yield sse(event)
+            return
+
         headers = {
             "User-Agent": USER_AGENT,
             "Accept": "text/event-stream",
