@@ -170,6 +170,15 @@ textarea#prompt::placeholder{color:#a8a7b0}
 .send-btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05)}
 .send-btn:disabled{opacity:.45;cursor:wait;transform:none}
 .model-row{display:flex;align-items:center;gap:9px;padding:9px 4px 2px}
+.agent-picker{padding:12px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.agent-picker[hidden]{display:none}
+.agent-picker-title{font-size:12px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.agent-picker-title span{font-size:10.5px;font-weight:400;color:var(--muted)}
+.agent-pills{display:flex;gap:7px;flex-wrap:wrap}
+.agent-pick{border:1px solid var(--line);border-radius:14px;padding:6px 10px;font-size:11px;background:#fff;color:#666370}
+.agent-pick.selected{border-color:#c9c2f2;background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.agent-progress{font-size:11.5px;color:var(--accent-ink);background:var(--accent-soft);border-radius:10px;padding:7px 10px;margin-bottom:8px}
+
 .model-chip{display:flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:15px;background:#f2f2f5;font-size:11.5px;font-weight:600;color:#44424e;position:relative}
 .model-chip:hover{background:#e9e7f5}
 .model-chip .chev{font-size:10px;color:#8a8894}
@@ -257,6 +266,7 @@ textarea#prompt::placeholder{color:#a8a7b0}
       <button class="tool-chip rec" id="recordChip"><span class="t-ic">●</span> تسجيل <span style="font-size:9px">▾</span></button>
       <button class="tool-chip stop" id="stopChip" hidden><span class="t-ic">■</span> إيقاف</button>
      </div>
+     <div class="agent-picker" id="agentPicker" hidden></div>
      <form id="form">
       <div class="input-row">
        <button class="plus-btn" id="plusBtn" type="button" aria-label="إضافات">＋</button>
@@ -391,8 +401,25 @@ function newChat(){
 $('sideNewChat').onclick=newChat;$('topNewChat').onclick=newChat;
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();newChat()}});
 $('shareBtn').onclick=async()=>{try{if(navigator.share)await navigator.share({title:'MandoAI',url:location.href});else{await navigator.clipboard.writeText(location.href);toast('تم نسخ رابط الموقع')}}catch{}};
-$('chatTab').onclick=()=>{$('chatTab').classList.add('active');$('agentTab').classList.remove('active')};
-$('agentTab').onclick=()=>{$('agentTab').classList.add('active');$('chatTab').classList.remove('active');toast('وضع Agent غير مفعّل في الخادم حاليًا.')};
+let chatMode='chat';
+let agentCatalog=[{id:'brain',name:'🧠 Brain'},{id:'web',name:'🌐 Web'},{id:'code',name:'💻 Code'},{id:'files',name:'📁 Files'},{id:'memory',name:'💾 Memory'},{id:'subagent',name:'🧩 Sub-Agent'},{id:'core',name:'⚙️ Core'}];
+let selectedAgents=['brain','web','code','core'];
+async function loadAgentCatalog(){
+ try{const r=await fetch('/api/agents');if(r.ok){const d=await r.json();if(Array.isArray(d.agents)&&d.agents.length)agentCatalog=d.agents;}}catch{}
+ renderAgentPicker();
+}
+function renderAgentPicker(){
+ const box=$('agentPicker');if(!box)return;
+ box.innerHTML='<div class="agent-picker-title">فريق الوكلاء <span>اختر حتى 7 وكلاء لتنفيذ المهمة بالتتابع</span></div><div class="agent-pills">'+agentCatalog.map(a=>'<button type="button" class="agent-pick'+(selectedAgents.includes(a.id)?' selected':'')+'" data-agent="'+esc(a.id)+'" aria-pressed="'+selectedAgents.includes(a.id)+'">'+esc(a.name)+'</button>').join('')+'</div>';
+ box.querySelectorAll('[data-agent]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.agent;if(selectedAgents.includes(id))selectedAgents=selectedAgents.filter(x=>x!==id);else if(selectedAgents.length<7)selectedAgents.push(id);else toast('يمكن اختيار 7 وكلاء كحد أقصى');renderAgentPicker();});
+}
+function setChatMode(next){
+ chatMode=next;$('chatTab').classList.toggle('active',next==='chat');$('agentTab').classList.toggle('active',next==='agent');
+ $('agentPicker').hidden=next!=='agent';$('prompt').placeholder=next==='agent'?'اكتب المهمة التي تريد من فريق الوكلاء تنفيذها...':'اسأل أي شيء...';
+ $('send').title=next==='agent'?'تشغيل فريق الوكلاء':'إرسال';if(next==='agent')loadAgentCatalog();
+}
+$('chatTab').onclick=()=>setChatMode('chat');
+$('agentTab').onclick=()=>setChatMode('agent');
 
 /* ================= Model menus ================= */
 function closePop(){if(menuPop){menuPop.remove();menuPop=null}}
@@ -560,10 +587,47 @@ function ensureConversation(firstText){
  }
  return conv;
 }
+async function runAgentTask(text){
+ if(!selectedAgents.length){toast('اختر وكيلاً واحداً على الأقل');return}
+ const conv=ensureConversation(text);conv.messages.push({role:'user',content:text});
+ if(conv.messages.length===1)conv.title='Agent: '+text.slice(0,35);conv.updatedAt=Date.now();
+ if($('messages').querySelector('.welcome'))$('messages').innerHTML='';
+ $('messages').appendChild(buildUserRow(text));save();renderSidebar();
+ $('prompt').value='';$('prompt').style.height='auto';generating=true;$('send').disabled=true;$('stopChip').hidden=false;
+ const row=buildAssistantShell(),mdEl=row.querySelector('.md'),progress=document.createElement('div');
+ progress.className='agent-progress';progress.textContent='يتم تجهيز فريق الوكلاء...';row.querySelector('.bubble.assistant').prepend(progress);
+ $('messages').appendChild(row);scrollBottom();let answer='';activeController=new AbortController();
+ const render=()=>{mdEl.innerHTML=mdToHtml(answer);scrollBottom()};
+ try{
+  const res=await fetch('/api/agents/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:text,model:model,agents:selectedAgents}),signal:activeController.signal});
+  if(!res.ok){let msg='تعذر تشغيل الوكلاء.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
+  if(!res.body)throw new Error('المتصفح لا يدعم الاستجابة المتدفقة.');
+  const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
+  while(true){
+   const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});
+   const chunks=buffer.split('\\n\\n');buffer=chunks.pop();
+   for(const chunk of chunks)for(const line of chunk.split('\\n')){
+    if(!line.startsWith('data:'))continue;let event;try{event=JSON.parse(line.slice(5).trim())}catch{continue}
+    if(event.type==='agent_start')progress.textContent='يعمل الآن: '+(event.name||event.agent)+' ('+event.index+'/'+event.total+')';
+    else if(event.type==='agent_done'){answer+=(answer?'\\n\\n':'')+'## '+(event.name||event.agent)+'\\n\\n'+(event.text||'');render()}
+    else if(event.type==='error')throw new Error(event.message||'تعذر إكمال مهمة الوكلاء.');
+    else if(event.type==='run_done')progress.textContent='اكتمل عمل '+(event.agents_completed||selectedAgents.length)+' وكلاء بنجاح.';
+   }
+  }
+  if(!answer.trim())throw new Error('لم يُرجع فريق الوكلاء نتيجة. حاول مرة أخرى.');
+  conv.messages.push({role:'assistant',content:answer});conv.updatedAt=Date.now();save();renderSidebar();render();addActions(row,answer);
+ }catch(err){
+  const msg=err.name==='AbortError'?'تم إيقاف تشغيل الوكلاء.':(err.message||'حدث خطأ غير متوقع.');
+  const finalText=answer?answer+'\\n\\n**تنبيه:** '+msg:msg;
+  conv.messages.push({role:'assistant',content:finalText,error:true});conv.updatedAt=Date.now();save();renderSidebar();
+  mdEl.innerHTML=mdToHtml(finalText);row.querySelector('.bubble').classList.add('error');
+ }finally{generating=false;activeController=null;$('send').disabled=false;$('stopChip').hidden=true;$('prompt').focus();scrollBottom()}
+}
 $('form').addEventListener('submit',async e=>{
  e.preventDefault();
  const text=$('prompt').value.trim();
  if(!text||generating)return;
+ if(chatMode==='agent'){await runAgentTask(text);return;}
  const conv=ensureConversation(text);
  conv.messages.push({role:'user',content:text});
  if(conv.messages.length===1)conv.title=text.slice(0,42)+(text.length>42?'…':'');
