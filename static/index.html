@@ -3,59 +3,95 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10131d">
-  <meta name="description" content="MandoAI — واجهة محادثة عربية لاختيار نماذج GLM.">
-  <title>MandoAI</title>
+  <meta name="theme-color" content="#090b12">
+  <meta name="description" content="MandoAI — مساحة ذكاء اصطناعي عربية للمحادثة والإنتاجية.">
+  <title>MandoAI — مساحة الذكاء الاصطناعي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{color-scheme:dark;--bg:#0d1018;--panel:#151a27;--panel2:#1c2332;--line:#293247;--text:#edf1fa;--muted:#9ca8bd;--accent:#8b7cff;--accent2:#5dd6c0;--danger:#ff8d98}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -10%,#252044 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-    .shell{max-width:1100px;margin:auto;padding:24px 18px;display:flex;flex-direction:column;min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#4a9fe8);display:grid;place-items:center;font-weight:900;font-size:19px;box-shadow:0 8px 30px #7566ff44}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.status{font-size:12px;color:var(--accent2);border:1px solid #285b58;padding:7px 11px;border-radius:30px}
-    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px;flex:1;min-height:0}.side,.chat{background:#121724d9;border:1px solid var(--line);border-radius:20px}.side{padding:18px;height:max-content}.side h2{font-size:14px;margin:0 0 12px}.side label{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}.side select{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:12px;border-radius:12px;font:inherit;outline:none}.note{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 0}.side button{width:100%;margin-top:16px;border:1px solid var(--line);background:transparent;color:var(--text);padding:10px;border-radius:11px;cursor:pointer}
-    .chat{display:flex;flex-direction:column;min-height:600px;overflow:hidden}.chathead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.chathead strong{font-size:14px}.chathead span{font-size:12px;color:var(--muted)}.messages{padding:22px;flex:1;overflow:auto;display:flex;flex-direction:column;gap:15px;max-height:calc(100vh - 280px);min-height:380px}.welcome{text-align:center;margin:auto;max-width:470px;color:var(--muted);line-height:1.9}.welcome .orb{width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,#8b7cff33,#5dd6c033);border:1px solid #514b87;margin:0 auto 14px;display:grid;place-items:center;color:#c7c0ff;font-size:25px}.welcome h2{color:var(--text);font-size:20px;margin:0 0 7px}.bubble{max-width:min(82%,760px);padding:13px 16px;border:1px solid var(--line);border-radius:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.user{align-self:flex-start;background:#282445;border-color:#494174}.bubble.assistant{align-self:flex-end;background:var(--panel)}.bubble.error{border-color:#75404a;color:#ffc1c6}.composer{padding:15px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-end}.composer textarea{flex:1;resize:vertical;min-height:48px;max-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;color:var(--text);padding:13px;font:inherit;outline:none}.composer textarea:focus,.side select:focus{border-color:var(--accent)}.send{height:48px;min-width:92px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--accent),#5d9df2);color:white;font:inherit;font-weight:700;cursor:pointer}.send:disabled{opacity:.55;cursor:wait}.foot{font-size:11px;color:#77839a;text-align:center;padding-top:12px}
-    @media(max-width:760px){.shell{padding:14px 10px}.layout{grid-template-columns:1fr}.chat{min-height:520px}.messages{max-height:none;min-height:320px}.top{margin-bottom:14px}.bubble{max-width:94%}.status{display:none}}
+    :root{color-scheme:dark;--bg:#090b12;--surface:#111521;--surface2:#171d2b;--surface3:#20283a;--line:#293247;--text:#f2f4fb;--muted:#98a3b8;--purple:#9b8cff;--cyan:#65dfd0;--danger:#ff8998;--shadow:0 24px 80px #0008}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    body{min-height:100vh;background:radial-gradient(ellipse at 82% -15%,#41357955,transparent 36%),radial-gradient(ellipse at 4% 90%,#176e7650,transparent 30%),var(--bg)}
+    button,select,textarea{font:inherit}button{cursor:pointer}
+    .app{max-width:1500px;min-height:100vh;margin:auto;padding:18px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px}
+    .sidebar{background:#101521e8;border:1px solid #ffffff12;border-radius:25px;padding:22px;display:flex;flex-direction:column;gap:25px;box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;font-size:22px;font-weight:700;background:linear-gradient(145deg,#b3a5ff,#6860dc 55%,#4cc9c0);box-shadow:0 9px 28px #8274ff55;color:white}.brand-name{font-size:20px;font-weight:700;letter-spacing:-.5px}.brand-caption{font-size:11px;color:var(--muted);margin-top:2px}
+    .new-chat{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:1px solid #a99cff55;border-radius:14px;padding:13px;color:white;background:linear-gradient(110deg,#7868d9,#655bc2);box-shadow:0 8px 22px #7668d933;font-weight:600;transition:.2s}.new-chat:hover{filter:brightness(1.12);transform:translateY(-1px)}
+    .section-label{font-size:11px;color:#77839a;font-weight:700;letter-spacing:.7px;margin:0 0 11px}.setting-card{padding:15px;border:1px solid var(--line);background:linear-gradient(145deg,#1a2030,#121825);border-radius:17px}.setting-card label{display:block;font-size:12px;color:var(--muted);margin-bottom:10px}.select-wrap{position:relative}.select-wrap:after{content:"⌄";position:absolute;left:13px;top:8px;color:#a9a2ff;pointer-events:none}.setting-card select{width:100%;appearance:none;background:#0c111c;border:1px solid #30394e;border-radius:11px;padding:11px 12px;color:var(--text);outline:none;font-size:13px}.setting-card select:focus,.composer textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b8cff20}
+    .model-hint{font-size:11px;color:#8591a7;line-height:1.7;margin:10px 0 0}.side-info{margin-top:auto;border:1px solid #ffffff12;background:#ffffff05;border-radius:16px;padding:14px}.side-info strong{font-size:12px;display:block;margin-bottom:5px}.side-info p{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.side-bottom{display:flex;align-items:center;justify-content:space-between;color:#7e8aa1;font-size:11px;padding:0 3px}
+    .main{min-width:0;display:flex;flex-direction:column;gap:16px}.topbar{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border:1px solid #ffffff12;border-radius:20px;background:#111521bd;backdrop-filter:blur(16px)}.page-title{font-weight:600;font-size:15px}.page-subtitle{font-size:11px;color:var(--muted);margin-top:2px}.top-actions{display:flex;align-items:center;gap:10px}.status{display:flex;align-items:center;gap:8px;border:1px solid #3c8d7b55;background:#173a354d;padding:8px 12px;border-radius:30px;color:#8ce5cd;font-size:11px}.dot{width:7px;height:7px;background:#5cdbb6;border-radius:50%;box-shadow:0 0 12px #5cdbb6}
+    .clear-btn{border:1px solid var(--line);background:#ffffff06;color:#aab4c7;border-radius:11px;padding:8px 12px;font-size:11px;transition:.2s}.clear-btn:hover{background:#ffffff12;color:white}
+    .chat-panel{flex:1;min-height:calc(100vh - 122px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #ffffff14;border-radius:25px;background:linear-gradient(155deg,#121725f2,#0e131ef2);box-shadow:var(--shadow);position:relative}.chat-panel:before{content:"";position:absolute;inset:0 20% auto;height:1px;background:linear-gradient(90deg,transparent,#a99cff99,transparent)}
+    .chat-meta{padding:17px 24px;border-bottom:1px solid #ffffff0c;display:flex;align-items:center;justify-content:space-between}.chat-meta strong{font-size:13px}.model-chip{font-size:10px;color:#c2baff;background:#8e80ff18;border:1px solid #a99cff35;border-radius:30px;padding:6px 11px;direction:ltr}
+    .messages{width:100%;max-width:930px;margin:0 auto;padding:30px 28px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:19px;min-height:350px;max-height:calc(100vh - 265px);scrollbar-width:thin;scrollbar-color:#424b63 transparent}
+    .welcome{margin:auto;text-align:center;max-width:570px;padding:30px 10px}.welcome-icon{width:76px;height:76px;margin:0 auto 20px;border-radius:25px;display:grid;place-items:center;font-size:32px;color:#d5ceff;background:linear-gradient(145deg,#9b8cff30,#5dd6c020);border:1px solid #b5a9ff3d;box-shadow:0 0 60px #8c7aff18}.welcome h1{font-size:clamp(23px,3vw,32px);margin:0 0 10px;letter-spacing:-.7px}.welcome h1 span{background:linear-gradient(90deg,#c0b6ff,#75e4d2);background-clip:text;-webkit-background-clip:text;color:transparent}.welcome>p{color:var(--muted);font-size:13px;line-height:2;margin:0 auto 27px;max-width:460px}
+    .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;text-align:right}.suggestion{border:1px solid #ffffff13;border-radius:15px;background:#ffffff06;color:#dce2f0;padding:14px;text-align:right;transition:.2s}.suggestion:hover{border-color:#9b8cff77;background:#8d7cff12;transform:translateY(-2px)}.suggestion b{display:block;font-size:12px;margin-bottom:5px}.suggestion span{display:block;color:#8995aa;font-size:11px;line-height:1.6}
+    .message-row{display:flex;align-items:flex-start;gap:11px;max-width:88%;animation:rise .2s ease}.message-row.user{align-self:flex-start;flex-direction:row-reverse}.message-row.assistant{align-self:flex-end}.avatar{flex:0 0 34px;width:34px;height:34px;border-radius:12px;display:grid;place-items:center;font-size:12px;font-weight:700;background:linear-gradient(145deg,#8172e5,#4a9caa);color:white}.user .avatar{background:#27334a;color:#c8d2e7}.bubble{min-width:0;padding:13px 16px;border:1px solid #ffffff12;border-radius:17px;line-height:1.95;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.user{background:linear-gradient(140deg,#292744,#20263a);border-color:#7770b844;border-top-left-radius:5px}.bubble.assistant{background:#171e2c;border-top-right-radius:5px}.bubble.error{border-color:#a34d5b;color:#ffc1c8}
+    .composer-area{padding:17px 24px 20px;border-top:1px solid #ffffff0d;background:#0d121d99}.composer{max-width:930px;margin:auto;display:flex;align-items:flex-end;gap:11px;padding:9px;background:#171e2c;border:1px solid #343e55;border-radius:19px;box-shadow:0 8px 30px #0003;transition:.2s}.composer:focus-within{border-color:#9284ff88;box-shadow:0 0 0 3px #9284ff12,0 8px 30px #0003}.composer textarea{flex:1;min-width:0;resize:none;min-height:44px;max-height:160px;background:transparent;border:0;color:var(--text);padding:10px 12px;outline:none;font-size:13px;line-height:1.7}.composer textarea:focus{box-shadow:none;border:0}.composer textarea::placeholder{color:#7e8aa0}.send{width:45px;height:45px;flex:0 0 45px;border:0;border-radius:13px;color:white;font-size:19px;background:linear-gradient(145deg,#a092ff,#6960d4);box-shadow:0 5px 16px #8475ff40;transition:.2s}.send:hover{filter:brightness(1.12);transform:translateY(-1px)}.send:disabled{opacity:.5;cursor:wait;transform:none}.composer-note{text-align:center;color:#748097;font-size:10px;margin:10px 0 0}.footer{color:#667188;text-align:center;font-size:10px;padding:0 0 2px}
+    @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){.app{grid-template-columns:245px minmax(0,1fr);padding:12px;gap:12px}.sidebar{padding:17px}.messages{padding:24px 18px}}
+    @media(max-width:680px){.app{display:flex;flex-direction:column;padding:9px;gap:10px}.sidebar{padding:13px 14px;gap:12px;border-radius:19px}.brand{gap:9px}.logo{width:39px;height:39px;border-radius:13px;font-size:18px}.brand-name{font-size:17px}.brand-caption{font-size:10px}.new-chat{width:auto;padding:9px 12px;font-size:11px}.sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.section-label{margin-bottom:7px}.setting-card{padding:11px;display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:10px}.setting-card label{margin:0}.setting-card select{padding:9px}.model-hint,.side-info,.side-bottom{display:none}.main{flex:1;min-height:65vh}.topbar{height:54px;padding:0 13px;border-radius:15px}.page-title{font-size:13px}.page-subtitle{font-size:10px}.status{padding:6px 9px;font-size:10px}.clear-btn{padding:6px 9px}.chat-panel{min-height:calc(100vh - 190px);border-radius:19px}.chat-meta{padding:12px 15px}.messages{padding:17px 12px;min-height:300px;max-height:none}.welcome{padding:20px 4px}.welcome-icon{width:62px;height:62px;border-radius:20px;font-size:27px;margin-bottom:15px}.welcome>p{font-size:12px}.suggestions{gap:8px}.suggestion{padding:11px;border-radius:12px}.suggestion b{font-size:11px}.suggestion span{font-size:10px}.message-row{max-width:96%;gap:7px}.avatar{width:29px;height:29px;flex-basis:29px;border-radius:10px}.bubble{padding:10px 12px;font-size:12px}.composer-area{padding:11px 10px 13px}.composer{padding:6px;border-radius:15px}.composer textarea{font-size:12px;padding:8px}.send{width:40px;height:40px;flex-basis:40px}.footer{font-size:9px}}
+    @media(max-width:370px){.suggestions{grid-template-columns:1fr}.status{display:none}.setting-card{grid-template-columns:85px minmax(0,1fr)}}
   </style>
 </head>
 <body>
-<div class="shell">
-  <header class="top"><div class="brand"><div class="logo">M</div><div><h1>MandoAI</h1><p>واجهة محادثة نماذج GLM</p></div></div><div class="status">● الواجهة جاهزة</div></header>
-  <main class="layout">
-    <aside class="side">
-      <h2>إعدادات المحادثة</h2>
-      <label for="model">اختر النموذج</label>
-      <select id="model">
-        <optgroup label="نماذج النص">
-          <option>glm-5.3</option><option>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option>
-        </optgroup>
-        <optgroup label="الصور"><option value="glm-image">glm-image — غير متاح حاليًا</option></optgroup>
-      </select>
-      <p class="note">يتم حفظ اختيار النموذج وسجل المحادثة على هذا المتصفح فقط. قد تختلف النماذج المتاحة حسب الخدمة الخارجية.</p>
-      <button id="clear" type="button">مسح المحادثة</button>
-    </aside>
-    <section class="chat">
-      <div class="chathead"><strong>المحادثة</strong><span id="modelLabel">glm-5.3</span></div>
-      <div class="messages" id="messages"><div class="welcome" id="welcome"><div class="orb">✦</div><h2>أهلًا بك في MandoAI</h2><div>اختر نموذج GLM وابدأ محادثة جديدة. يمكنك الكتابة بالعربية أو بأي لغة أخرى.</div></div></div>
-      <form class="composer" id="form"><textarea id="prompt" maxlength="8000" rows="1" placeholder="اكتب رسالتك هنا..." aria-label="رسالتك" required></textarea><button class="send" id="send" type="submit">إرسال ↑</button></form>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="brand"><div class="logo">M</div><div><div class="brand-name">MandoAI</div><div class="brand-caption">ذكاء اصطناعي • مساحة واحدة</div></div></div>
+      <button class="new-chat" id="clear" type="button"><span>＋</span> محادثة جديدة</button>
+    </div>
+    <div>
+      <p class="section-label">تخصيص التجربة</p>
+      <div class="setting-card">
+        <label for="model">نموذج الذكاء الاصطناعي</label>
+        <div class="select-wrap"><select id="model">
+          <optgroup label="نماذج النص">
+            <option>glm-5.3</option><option>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option>
+          </optgroup>
+          <optgroup label="الصور"><option value="glm-image">glm-image — غير متاح حاليًا</option></optgroup>
+        </select></div>
+        <p class="model-hint">اختر النموذج المناسب لمحادثتك. قد يختلف توفر النماذج حسب الخدمة الخارجية.</p>
+      </div>
+    </div>
+    <div class="side-info"><strong>مساحتك، بطريقتك</strong><p>سجل المحادثة واختيار النموذج محفوظان محليًا في هذا المتصفح فقط.</p></div>
+    <div class="side-bottom"><span>MANDOAI</span><span>الإصدار 1.1</span></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><div class="page-title">مساحة المحادثة</div><div class="page-subtitle">فكّر، اسأل، وابدأ من هنا</div></div><div class="top-actions"><div class="status"><i class="dot"></i> الواجهة جاهزة</div></div></header>
+    <section class="chat-panel">
+      <div class="chat-meta"><strong>المحادثة الحالية</strong><span class="model-chip" id="modelLabel">glm-5.3</span></div>
+      <div class="messages" id="messages"><div class="welcome" id="welcome"><div class="welcome-icon">✦</div><h1>مرحبًا بك في <span>MandoAI</span></h1><p>مساحتك الذكية للأفكار والأسئلة والإنجاز. اكتب ما يدور في ذهنك، ودع المحادثة تبدأ.</p><div class="suggestions">
+        <button class="suggestion" type="button" data-prompt="اشرح لي موضوعًا صعبًا بطريقة بسيطة مع أمثلة."><b>✧ تعلّم شيئًا جديدًا</b><span>شرح واضح خطوة بخطوة مع أمثلة.</span></button>
+        <button class="suggestion" type="button" data-prompt="ساعدني في كتابة خطة منظمة لمشروعي القادم."><b>▤ نظّم أفكارك</b><span>حوّل أفكارك إلى خطة عملية.</span></button>
+        <button class="suggestion" type="button" data-prompt="اقترح لي أفكارًا إبداعية لمشروع جديد."><b>✳ اكتشف أفكارًا</b><span>ابدأ بعصف ذهني مختلف.</span></button>
+        <button class="suggestion" type="button" data-prompt="راجع هذا الكود واشرح لي طريقة تحسينه."><b>⌘ ساعدني في البرمجة</b><span>افهم الكود وطوّر مشروعك.</span></button>
+      </div></div></div>
+      <div class="composer-area"><form class="composer" id="form"><textarea id="prompt" maxlength="8000" rows="1" placeholder="اكتب رسالتك إلى MandoAI..." aria-label="رسالتك" required></textarea><button class="send" id="send" type="submit" aria-label="إرسال الرسالة">↑</button></form><p class="composer-note">اضغط Enter للإرسال · Shift + Enter لسطر جديد</p></div>
     </section>
+    <footer class="footer">MandoAI · يتصل بالخدمة الخارجية عبر الخادم، ولا يضع بيانات الاتصال في المتصفح.</footer>
   </main>
-  <footer class="foot">MandoAI · يتصل بالخدمة الخارجية عبر الخادم، ولا يضع بيانات الاتصال في المتصفح.</footer>
 </div>
 <script>
 const $=id=>document.getElementById(id);const model=$('model'),messagesEl=$('messages'),promptEl=$('prompt'),sendBtn=$('send');
-let history=[];try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]')}catch{history=[]}
+let history=[];try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]');if(!Array.isArray(history))history=[]}catch{history=[]}
 model.value=localStorage.getItem('mandoai-model')||'glm-5.3';$('modelLabel').textContent=model.value;
 function save(){localStorage.setItem('mandoai-history',JSON.stringify(history));localStorage.setItem('mandoai-model',model.value)}
-function bubble(role,text,extra=''){const el=document.createElement('div');el.className=`bubble ${role} ${extra}`;el.textContent=text;messagesEl.appendChild(el);messagesEl.scrollTop=messagesEl.scrollHeight;return el}
-function render(){messagesEl.innerHTML='';if(!history.length){messagesEl.innerHTML='<div class="welcome"><div class="orb">✦</div><h2>أهلًا بك في MandoAI</h2><div>اختر نموذج GLM وابدأ محادثة جديدة. يمكنك الكتابة بالعربية أو بأي لغة أخرى.</div></div>';return}for(const m of history)bubble(m.role,m.content)}
-render();model.addEventListener('change',()=>{$('modelLabel').textContent=model.value;save()});$('clear').onclick=()=>{history=[];save();render()};
+function bubble(role,text,extra=''){const row=document.createElement('div');row.className='message-row '+role;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'أنت':'M';const el=document.createElement('div');el.className='bubble '+role+' '+extra;el.textContent=text;row.appendChild(avatar);row.appendChild(el);messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;return el}
+function render(){messagesEl.innerHTML='';if(!history.length){messagesEl.innerHTML='<div class="welcome"><div class="welcome-icon">✦</div><h1>مرحبًا بك في <span>MandoAI</span></h1><p>مساحتك الذكية للأفكار والأسئلة والإنجاز. اكتب ما يدور في ذهنك، ودع المحادثة تبدأ.</p><div class="suggestions"><button class="suggestion" type="button" data-prompt="اشرح لي موضوعًا صعبًا بطريقة بسيطة مع أمثلة."><b>✧ تعلّم شيئًا جديدًا</b><span>شرح واضح خطوة بخطوة مع أمثلة.</span></button><button class="suggestion" type="button" data-prompt="ساعدني في كتابة خطة منظمة لمشروعي القادم."><b>▤ نظّم أفكارك</b><span>حوّل أفكارك إلى خطة عملية.</span></button><button class="suggestion" type="button" data-prompt="اقترح لي أفكارًا إبداعية لمشروع جديد."><b>✳ اكتشف أفكارًا</b><span>ابدأ بعصف ذهني مختلف.</span></button><button class="suggestion" type="button" data-prompt="راجع هذا الكود واشرح لي طريقة تحسينه."><b>⌘ ساعدني في البرمجة</b><span>افهم الكود وطوّر مشروعك.</span></button></div></div>';return}for(const m of history){if(m&&['user','assistant'].includes(m.role)&&typeof m.content==='string')bubble(m.role,m.content)}}
+render();model.addEventListener('change',()=>{$('modelLabel').textContent=model.value;save()});$('clear').onclick=()=>{history=[];save();render();promptEl.focus()};
+messagesEl.addEventListener('click',e=>{const btn=e.target.closest('[data-prompt]');if(btn){promptEl.value=btn.dataset.prompt;promptEl.focus();promptEl.dispatchEvent(new Event('input'))}});
+promptEl.addEventListener('input',()=>{promptEl.style.height='auto';promptEl.style.height=Math.min(promptEl.scrollHeight,160)+'px'});
 promptEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('form').requestSubmit()}});
-$('form').addEventListener('submit',async e=>{e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;const selected=model.value;if(selected==='glm-image'){bubble('error','نموذج glm-image ظاهر في القائمة، لكن كود تشغيل الصور في السكربت الأصلي معطّل ولم يتم التحقق من واجهته.');return}
-  history.push({role:'user',content:text});bubble('user',text);promptEl.value='';save();sendBtn.disabled=true;sendBtn.textContent='...';const reply=bubble('assistant','');let answer='';
+$('form').addEventListener('submit',async e=>{e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;const selected=model.value;if(selected==='glm-image'){bubble('assistant','نموذج glm-image ظاهر في القائمة، لكن كود تشغيل الصور في المصدر الأصلي معطّل ولم يتم التحقق من واجهته.','error');return}
+  history.push({role:'user',content:text});bubble('user',text);promptEl.value='';promptEl.style.height='auto';save();sendBtn.disabled=true;sendBtn.textContent='…';const reply=bubble('assistant','');let answer='';
   try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:selected,messages:history})});if(!res.ok){let msg='تعذر تنفيذ الطلب.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
     if(!res.body)throw new Error('المتصفح لم يستطع قراءة البث المباشر.');const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
-    while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let parts=buffer.split('\n\n');buffer=parts.pop();for(const part of parts){for(const line of part.split('\n')){if(!line.startsWith('data:'))continue;let obj;try{obj=JSON.parse(line.slice(5).trim())}catch{continue}if(obj.type==='delta'){answer+=obj.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}else if(obj.type==='error'||obj.type==='limit'||obj.type==='offline'){throw new Error(obj.message||'الخدمة غير متاحة حالياً.')}else if(obj.type==='notice'){if(obj.message)answer+='\n'+obj.message;reply.textContent=answer}else if(obj.type==='meta'&&obj.fallback){/* model fallback metadata */}}}}
+    while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let parts=buffer.split('\n\n');buffer=parts.pop();for(const part of parts){for(const line of part.split('\n')){if(!line.startsWith('data:'))continue;let obj;try{obj=JSON.parse(line.slice(5).trim())}catch{continue}if(obj.type==='delta'){answer+=obj.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}else if(obj.type==='error'||obj.type==='limit'||obj.type==='offline'){throw new Error(obj.message||'الخدمة غير متاحة حالياً.')}else if(obj.type==='notice'){if(obj.message)answer+='\n'+obj.message;reply.textContent=answer}else if(obj.type==='meta'&&obj.fallback){}}}}
     if(!answer.trim())answer='لم يصل نص من الخدمة. قد يكون النموذج غير متاح حاليًا.';history.push({role:'assistant',content:answer});save();
   }catch(err){reply.classList.add('error');reply.textContent=err.message||'حدث خطأ غير متوقع.';history.push({role:'assistant',content:reply.textContent});save()}
-  finally{sendBtn.disabled=false;sendBtn.textContent='إرسال ↑';promptEl.focus()}
+  finally{sendBtn.disabled=false;sendBtn.textContent='↑';promptEl.focus()}
 });
 </script>
 </body>
