@@ -76,6 +76,7 @@ body{perspective:1400px;background:radial-gradient(ellipse at 50% 8%,#e8defd 0,t
 @media(min-width:900px){.main{padding-top:38px}.chat-area{padding-bottom:255px}.composer-dock{bottom:28px}}
 @media(max-width:650px){.header{height:62px;padding:0 13px;gap:10px}.brand{min-width:0;gap:8px}.brand-mark{width:35px;height:35px;border-radius:12px}.brand-name{font-size:17px}.brand-name small{font-size:9px}.header-actions{gap:5px}.header-actions>.pill-btn{display:none}.mode-group{padding:2px}.mode-btn{padding:7px 10px;font-size:10px}.main{padding:18px 13px 12px;min-height:calc(100vh - 62px)}.chat-area{padding-bottom:255px}.messages{gap:17px}.welcome{padding:24px 8px}.welcome-logo{width:58px;height:58px;border-radius:20px;font-size:25px}.welcome h1{font-size:23px}.welcome p{font-size:12px}.message{max-width:94%;gap:7px}.avatar{width:30px;height:30px;flex-basis:30px}.bubble{padding:11px 13px;font-size:12px;border-radius:17px}.composer-dock{bottom:calc(12px + env(safe-area-inset-bottom));width:calc(100% - 24px);padding:10px 10px 9px;border-radius:21px}.model-line{margin-bottom:7px}.model-select-wrap{padding:6px 10px}.model-select-wrap select{font-size:11px;max-width:185px}.tools-row{gap:3px;padding-bottom:7px}.tool-btn{padding:7px 8px;font-size:10px;gap:5px}.tool-btn .tool-icon{font-size:14px}.input-row{gap:6px;padding-top:6px}.input-plus{width:34px;height:34px;flex-basis:34px}.input-row textarea{font-size:13px;min-height:39px;padding:8px 5px}.send-btn{width:41px;height:41px;flex-basis:41px}.input-bottom{font-size:10px;gap:9px}.disclaimer{font-size:9px}.thinking{font-size:10px;gap:7px}.thinking-badge{padding:6px 10px}}
 @media(max-width:370px){.mode-btn{padding:6px 8px}.brand-name small{display:none}.tool-btn{padding:7px 6px}.tool-btn .tool-text{display:none}.model-select-wrap select{max-width:145px}}
+.agent-panel{margin:0 0 10px;padding:12px 13px;border:1px solid #e7def7;border-radius:17px;background:linear-gradient(145deg,#fbf9ff,#f2edfc);box-shadow:inset 0 1px #fff,0 5px 15px #6c54a410}.agent-panel[hidden]{display:none}.agent-panel-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.agent-panel-head strong{font-size:12px;color:#6549ad}.agent-panel-head span,.agent-hint{font-size:10px;color:#9189a4}.agent-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.agent-grid label{display:flex;align-items:center;gap:5px;padding:8px 7px;border:1px solid #e9e2f4;border-radius:11px;background:#fff;font-size:11px;color:#514967;cursor:pointer}.agent-grid input{accent-color:#8060dc;width:13px;height:13px;margin:0}.agent-hint{margin-top:9px}.mode-btn.agent-on{background:linear-gradient(130deg,#9c80e7,#725bd1);color:#fff;box-shadow:0 4px 0 #5b48ad,0 8px 16px #8b70db44}@media(max-width:650px){.agent-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.agent-panel{padding:10px}.agent-panel-head{flex-wrap:wrap;gap:4px 9px}}
 </style>
 </head>
 <body>
@@ -97,6 +98,14 @@ body{perspective:1400px;background:radial-gradient(ellipse at 50% 8%,#e8defd 0,t
 <div class="model-line"><div class="model-select-wrap"><span class="online-dot"></span><select id="model" aria-label="اختيار النموذج">
 <option>glm-5.3</option><option selected>glm-5.3-flash</option><option>glm-5.2</option><option>glm-5.1</option><option>glm-4.7</option><option>glm-4.6</option><option>glm-4.5</option><option>glm-4.7-flash</option><option>glm-4.5-flash</option><option>glm-4.7-flashx</option><option value="glm-image">glm-image</option>
 </select></div><span style="font-size:10px;color:#a09aaa">MandoAI</span></div>
+<div class="agent-panel" id="agentPanel" hidden>
+<div class="agent-panel-head"><strong>🧩 مركز الوكلاء</strong><span>اختر الوكلاء لتنفيذ المهمة بالتتابع</span></div>
+<div class="agent-grid">
+<label><input type="checkbox" value="brain" checked> 🧠 Brain</label><label><input type="checkbox" value="web"> 🌐 Web</label>
+<label><input type="checkbox" value="code" checked> 💻 Code</label><label><input type="checkbox" value="files"> 📁 Files</label>
+<label><input type="checkbox" value="memory"> 💾 Memory</label><label><input type="checkbox" value="subagent"> 🧩 Sub-Agent</label>
+<label><input type="checkbox" value="core" checked> ⚙️ Core</label></div>
+<div class="agent-hint">تُمرّر نتيجة كل وكيل إلى الوكيل التالي باستخدام نموذج GLM المحدد.</div></div>
 <div class="tools-row">
 <button class="tool-btn" id="searchBtn"><span class="tool-icon">⌕</span><span class="tool-text">بحث</span></button>
 <button class="tool-btn" id="attachBtn"><span class="tool-icon">▧</span><span class="tool-text">إرفاق</span></button>
@@ -113,7 +122,7 @@ body{perspective:1400px;background:radial-gradient(ellipse at 50% 8%,#e8defd 0,t
 <div class="toast" id="toast"></div>
 <script>
 const $=id=>document.getElementById(id),model=$('model'),messagesEl=$('messages'),promptEl=$('prompt'),sendBtn=$('send');
-let history=[],activeController=null,startedAt=0,toastTimer;
+let history=[],activeController=null,startedAt=0,toastTimer,agentMode=false;
 try{history=JSON.parse(localStorage.getItem('mandoai-history')||'[]');if(!Array.isArray(history))history=[]}catch{history=[]}
 model.value=localStorage.getItem('mandoai-model')||'glm-5.3-flash';
 function save(){localStorage.setItem('mandoai-history',JSON.stringify(history));localStorage.setItem('mandoai-model',model.value)}
@@ -125,8 +134,8 @@ render();
 model.addEventListener('change',()=>{localStorage.setItem('mandoai-model',model.value);$('selectedModel').textContent=model.value.toUpperCase()});
 $('newChat').onclick=()=>{if(activeController)activeController.abort();history=[];save();render();promptEl.focus()};
 $('menuBtn').onclick=()=>toast('قائمة المحادثات ستتوفر في تحديث لاحق.');
-$('agentMode').onclick=()=>toast('وضع Agent غير مفعّل في الخادم حاليًا.');
-$('chatMode').onclick=()=>{$('chatMode').classList.add('active');$('agentMode').classList.remove('active')};
+$('agentMode').onclick=()=>{agentMode=!agentMode;$('agentMode').classList.toggle('agent-on',agentMode);$('agentMode').classList.toggle('active',agentMode);$('chatMode').classList.toggle('active',!agentMode);$('agentPanel').hidden=!agentMode;promptEl.placeholder=agentMode?'اكتب المهمة التي تريد من الوكلاء تنفيذها...':'اسأل أي شيء...';toast(agentMode?'تم تفعيل مركز الوكلاء':'تم الرجوع إلى المحادثة العادية')};
+$('chatMode').onclick=()=>{agentMode=false;$('agentPanel').hidden=true;$('agentMode').classList.remove('agent-on','active');$('chatMode').classList.add('active');promptEl.placeholder='اسأل أي شيء...'};
 $('shareBtn').onclick=async()=>{try{if(navigator.share)await navigator.share({title:'MandoAI',url:location.href});else{await navigator.clipboard.writeText(location.href);toast('تم نسخ رابط الموقع')}}catch{}};
 $('searchBtn').onclick=()=>toast('البحث المباشر غير مفعّل في الخادم حاليًا.');
 $('attachBtn').onclick=()=>toast('رفع الصور غير مفعّل في واجهة الخادم الحالية.');
@@ -138,22 +147,30 @@ promptEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preve
 $('form').addEventListener('submit',async e=>{
 e.preventDefault();const text=promptEl.value.trim();if(!text||sendBtn.disabled)return;
 if(model.value==='glm-image'){toast('نموذج الصور غير مفعّل حاليًا.');return}
-history.push({role:'user',content:text});if(messagesEl.querySelector('.welcome'))messagesEl.innerHTML='';addMessage('user',text);save();promptEl.value='';promptEl.style.height='auto';
+if(!agentMode){history.push({role:'user',content:text});save()}if(messagesEl.querySelector('.welcome'))messagesEl.innerHTML='';addMessage('user',text);promptEl.value='';promptEl.style.height='auto';
 sendBtn.disabled=true;sendBtn.textContent='…';$('stopBtn').hidden=false;startedAt=Date.now();const thinking=document.createElement('div');thinking.className='thinking';thinking.innerHTML='<span class="thinking-badge"><span class="thinking-dots">•••</span> Thinking</span><span id="thinkingText">Understanding the question...</span><span class="thinking-time">0s</span>';messagesEl.appendChild(thinking);
 const timeEl=thinking.querySelector('.thinking-time'),timer=setInterval(()=>{timeEl.textContent=Math.floor((Date.now()-startedAt)/1000)+'s'},1000);
 const reply=addMessage('assistant','');let answer='';activeController=new AbortController();
 try{
-const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:model.value,messages:history}),signal:activeController.signal});
+const selectedAgents=[...document.querySelectorAll('#agentPanel input:checked')].map(x=>x.value);
+const endpoint=agentMode?'/api/agents/run':'/api/chat';
+const payload=agentMode?{model:model.value,task:text,agents:selectedAgents}:{model:model.value,messages:history};
+if(agentMode&&!selectedAgents.length)throw new Error('اختر وكيلاً واحداً على الأقل من مركز الوكلاء.');
+const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:activeController.signal});
 if(!res.ok){let msg='تعذر تنفيذ الطلب.';try{const j=await res.json();msg=j.detail||msg}catch{}throw new Error(msg)}
 if(!res.body)throw new Error('المتصفح لا يدعم قراءة الاستجابة المتدفقة.');
 const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
 while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const chunks=buffer.split('\n\n');buffer=chunks.pop();for(const chunk of chunks){for(const line of chunk.split('\n')){if(!line.startsWith('data:'))continue;let event;try{event=JSON.parse(line.slice(5).trim())}catch{continue}
 if(event.type==='delta'){answer+=event.text||'';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}
+else if(event.type==='agent_start'){answer+='\n⏳ '+event.name+' يعمل الآن...\n';reply.textContent=answer;thinking.querySelector('#thinkingText').textContent='تشغيل '+event.name}
+else if(event.type==='agent_done'){answer+='\n\n'+event.name+'\n'+(event.text||'')+'\n';reply.textContent=answer;messagesEl.scrollTop=messagesEl.scrollHeight}
+else if(event.type==='run_done'){answer+='\n\n✅ اكتمل تشغيل '+event.agents_completed+' وكيل.';reply.textContent=answer}
+else if(event.type==='run_start'){thinking.querySelector('#thinkingText').textContent='تهيئة '+event.total+' وكلاء'}
 else if(['error','limit','offline'].includes(event.type))throw new Error(event.message||'الخدمة غير متاحة حاليًا.');
 else if(event.type==='notice'&&event.message){answer+='\n'+event.message;reply.textContent=answer}
 }}}
-if(!answer.trim())answer='لم يصل رد من الخدمة. حاول مرة أخرى.';history.push({role:'assistant',content:answer});save();
-}catch(err){const msg=err.name==='AbortError'?'تم إيقاف التوليد.':(err.message||'حدث خطأ غير متوقع.');reply.classList.add('error');reply.textContent=msg;history.push({role:'assistant',content:msg});save()}
+if(!answer.trim())answer='لم يصل رد من الخدمة. حاول مرة أخرى.';if(!agentMode){history.push({role:'assistant',content:answer});save()}
+}catch(err){const msg=err.name==='AbortError'?'تم إيقاف التوليد.':(err.message||'حدث خطأ غير متوقع.');reply.classList.add('error');reply.textContent=msg;if(!agentMode){history.push({role:'assistant',content:msg});save()}}
 finally{clearInterval(timer);thinking.remove();sendBtn.disabled=false;sendBtn.textContent='➤';$('stopBtn').hidden=true;activeController=null;promptEl.focus()}
 });
 
